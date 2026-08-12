@@ -1,0 +1,76 @@
+﻿@page
+@model LifeUniform.Web.Pages.Account.OrdersModel
+@using LifeUniform.Domain.Orders
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+
+<div class="container py-4">
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 fw-bold mb-0">Мои заказы</h1>
+    <a class="btn btn-sm btn-outline-secondary" asp-page="/Account/Index">Кабинет</a>
+</div>
+
+@if (Model.Vm.Count == 0)
+{
+    <div class="empty-state card shadow-sm border-0 p-4 text-center">
+        <div class="fw-semibold mb-1">Заказов пока нет</div>
+        <p class="text-muted mb-3">Оформите первый заказ — он появится здесь.</p>
+        <a class="btn btn-primary" asp-page="/Catalog/Index">Смотреть каталог</a>
+    </div>
+}
+else
+{
+    <div class="vstack gap-3">
+        @foreach (var order in Model.Vm)
+        {
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap justify-content-between gap-2 mb-2">
+                        <div>
+                            <div class="fw-bold">@order.Number</div>
+                            <div class="text-muted small">@order.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</div>
+                        </div>
+                        <div class="text-end">
+                            <div>@StatusLabel(order.Status)</div>
+                            <div class="fw-bold">@order.GrandTotal.ToString("0.##") руб.</div>
+                        </div>
+                    </div>
+                    <ul class="list-unstyled mb-0 small">
+                        @foreach (var item in order.Items)
+                        {
+                            <li class="d-flex justify-content-between border-top py-1">
+                                <span>@item.ProductName <span class="text-muted">(@item.SizeLabel × @item.Quantity)</span></span>
+                                <span>@item.LineTotal.ToString("0.##") руб.</span>
+                            </li>
+                        }
+                    </ul>
+                    @if (order.DiscountAmount > 0)
+                    {
+                        <div class="text-success small mt-2">
+                            Скидка @(order.PromoCode is not null ? $"({order.PromoCode})" : ""): −@order.DiscountAmount.ToString("0.##") руб.
+                        </div>
+                    }
+                    @if (order.Status == OrderStatus.PendingPayment)
+                    {
+                        <a class="btn btn-sm btn-primary mt-3"
+                           asp-page="/Cart/Payment"
+                           asp-route-token="@order.PaymentToken">Оплатить</a>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+</div>
+
+@functions {
+    static string StatusLabel(OrderStatus status) => status switch
+    {
+        OrderStatus.PendingPayment => "Ожидает оплаты",
+        OrderStatus.Paid => "Оплачен",
+        OrderStatus.Shipped => "Отправлен",
+        OrderStatus.Cancelled => "Отменён",
+        _ => status.ToString()
+    };
+}

@@ -1,0 +1,396 @@
+@page "{slug}"
+@model LifeUniform.Web.Pages.Catalog.DetailsModel
+@{
+    ViewData["Title"] = Model.Vm?.Name ?? "Товар";
+    var selectedColor = Model.SelectedColor;
+    var gallery = new List<string>();
+    if (Model.Vm is not null)
+    {
+        foreach (var url in Model.Vm.GalleryImageUrls.Where(x => !string.IsNullOrWhiteSpace(x)))
+            gallery.Add(url);
+
+        // Color-specific photos only as extras (do not replace product gallery as primary).
+        foreach (var c in Model.Vm.Colors)
+        {
+            if (!string.IsNullOrWhiteSpace(c.ImageUrl) && !gallery.Contains(c.ImageUrl, StringComparer.OrdinalIgnoreCase))
+                gallery.Add(c.ImageUrl);
+        }
+
+        if (gallery.Count == 0 && !string.IsNullOrWhiteSpace(Model.Vm.PreviewImageUrl))
+            gallery.Add(Model.Vm.PreviewImageUrl);
+    }
+
+    var activeColor = Model.Vm?.Colors.FirstOrDefault(c =>
+        string.Equals(c.Name, selectedColor, StringComparison.OrdinalIgnoreCase))
+        ?? Model.Vm?.Colors.FirstOrDefault();
+
+    // Prefer product photo; color image only when it is set and user selected that color.
+    var mainImage = !string.IsNullOrWhiteSpace(activeColor?.ImageUrl) && !string.IsNullOrWhiteSpace(selectedColor)
+        ? activeColor!.ImageUrl!
+        : (gallery.FirstOrDefault() ?? Model.Vm?.PreviewImageUrl ?? "/images/placeholder-product.svg");
+    var mainIsExternal = mainImage.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+        || mainImage.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+    var careLines = (Model.Vm?.CareInstructions ?? "")
+        .Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
+
+<div class="container py-3 py-md-4">
+@if (Model.IsNotFound || Model.Vm is null)
+{
+    <div class="alert alert-warning">Товар не найден.</div>
+}
+else
+{
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb mb-0 small">
+            <li class="breadcrumb-item"><a asp-page="/Index">Главная</a></li>
+            <li class="breadcrumb-item">
+                <a asp-page="/Catalog/Index" asp-route-gender="@Model.Vm.Gender">
+                    @(Model.Vm.Gender == 1 ? "Женщинам" : "Мужчинам")
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                <a asp-page="/Catalog/Index"
+                   asp-route-gender="@Model.Vm.Gender"
+                   asp-route-categoryId="@Model.Vm.CategoryId">@Model.Vm.CategoryName</a>
+            </li>
+            <li class="breadcrumb-item active" aria-current="page">@Model.Vm.Name</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4 align-items-start">
+        <div class="col-lg-7">
+            <div class="pdp-gallery @(gallery.Count > 1 ? "pdp-gallery--with-thumbs" : null)">
+                @if (gallery.Count > 1)
+                {
+                    <div class="pdp-thumbs" role="tablist">
+                        @for (var i = 0; i < gallery.Count; i++)
+                        {
+                            var thumbUrl = gallery[i];
+                            var thumbExternal = thumbUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase)
+                                || thumbUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
+                            <button type="button"
+                                    class="pdp-thumb @(i == 0 ? "is-active" : null)"
+                                    data-src="@thumbUrl"
+                                    aria-label="Фото @(i + 1)">
+                                <img src="@thumbUrl"
+                                     alt=""
+                                     loading="lazy"
+                                     @(thumbExternal ? "referrerpolicy=no-referrer" : null) />
+                            </button>
+                        }
+                    </div>
+                }
+                <div class="pdp-main">
+                    <img id="mainProductImage"
+                         src="@mainImage"
+                         alt="@Model.Vm.Name"
+                         loading="eager"
+                         @(mainIsExternal ? "referrerpolicy=no-referrer" : null) />
+                    @if (gallery.Count > 1)
+                    {
+                        <button type="button" class="pdp-nav pdp-nav--prev" id="galleryPrev" aria-label="Предыдущее фото">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button type="button" class="pdp-nav pdp-nav--next" id="galleryNext" aria-label="Следующее фото">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="pdp-panel">
+                @if (Model.Vm.DiscountPercent is int pct && pct > 0)
+                {
+                    <span class="pdp-badge">−@pct%</span>
+                }
+
+                <div class="pdp-kicker">@(Model.Vm.ShortName ?? Model.Vm.Name)</div>
+                <h1 class="pdp-title">@Model.Vm.Name</h1>
+                @if (!string.IsNullOrWhiteSpace(Model.Vm.Sku))
+                {
+                    <div class="pdp-sku">Артикул: @Model.Vm.Sku</div>
+                }
+
+                <div class="pdp-price-row">
+                    @if (Model.Vm.DiscountPrice is decimal sale)
+                    {
+                        <span class="pdp-price">@sale.ToString("N0") ₽</span>
+                        <span class="pdp-price-old">@Model.Vm.Price.ToString("N0") ₽</span>
+                        @if (Model.Vm.SavingsAmount is decimal save)
+                        {
+                            <span class="pdp-save">Выгода @save.ToString("N0") ₽</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="pdp-price">@Model.Vm.Price.ToString("N0") ₽</span>
+                    }
+                </div>
+
+                @if (Model.CartAdded)
+                {
+                    <div class="alert alert-success py-2 mt-3 mb-0">
+                        Товар добавлен в корзину.
+                        <a asp-page="/Cart/Index" class="alert-link">Перейти в корзину</a>
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(Model.CartMessage) && !Model.SizeMissing)
+                {
+                    <div class="alert alert-warning py-2 mt-3 mb-0">@Model.CartMessage</div>
+                }
+
+                @if (Model.Vm.Colors.Count > 0)
+                {
+                    <div class="mt-4">
+                        <div class="pdp-label">Цвет: <strong>@(activeColor?.Name ?? Model.Vm.Colors[0].Name)</strong></div>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            @foreach (var c in Model.Vm.Colors)
+                            {
+                                var isActive = activeColor is not null &&
+                                    string.Equals(c.Name, activeColor.Name, StringComparison.OrdinalIgnoreCase);
+                                <a class="color-swatch @(isActive ? "is-active" : null)"
+                                   style="--swatch:@c.Hex"
+                                   asp-page="/Catalog/Details"
+                                   asp-route-slug="@Model.Vm.Slug"
+                                   asp-route-color="@c.Name"
+                                   title="@c.Name"
+                                   data-image="@(c.ImageUrl ?? Model.Vm.PreviewImageUrl)">
+                                    <span class="visually-hidden">@c.Name</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <form method="post" asp-page-handler="AddToCart" class="mt-4" id="addToCartForm" novalidate>
+                    <input type="hidden" name="slug" value="@Model.Vm.Slug" />
+                    <input type="hidden" name="color" value="@(activeColor?.Name ?? selectedColor)" />
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div class="pdp-label mb-0 @(Model.SizeMissing ? "text-danger" : null)">Размер:</div>
+                        <button type="button" class="btn btn-link btn-sm p-0" data-bs-toggle="modal" data-bs-target="#sizeChartModal">
+                            Таблица размеров →
+                        </button>
+                    </div>
+                    @if (Model.Vm.Sizes.Count > 0)
+                    {
+                        <div class="pdp-sizes mb-2 @(Model.SizeMissing ? "is-invalid" : null)"
+                             id="pdpSizes"
+                             data-stock='@Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                                 Model.Vm.ColorSizeStocks.Select(s => new { color = s.ColorName, sizeId = s.SizeId })))'>
+                            @foreach (var s in Model.Vm.Sizes)
+                            {
+                                <label class="pdp-size" data-size-id="@s.Id">
+                                    <input type="radio" name="sizeId" value="@s.Id" />
+                                    <span>@s.Label</span>
+                                </label>
+                            }
+                        </div>
+                        <div class="pdp-size-error @(Model.SizeMissing ? null : "d-none")" id="sizeError" role="alert">
+                            @(Model.CartMessage ?? "Выберите размер перед добавлением в корзину.")
+                        </div>
+                        <div class="text-muted small d-none mb-2" id="sizeColorHint">В этом цвете нет доступных размеров.</div>
+                    }
+
+                    <div class="pdp-stock @(Model.Vm.IsInStock ? "is-ok" : "is-out") mb-3 mt-3">
+                        <i class="bi @(Model.Vm.IsInStock ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                        @(Model.Vm.IsInStock ? "Есть в наличии" : "Нет в наличии")
+                    </div>
+
+                    <input type="hidden" name="quantity" value="1" />
+
+                    <button type="submit" class="btn pdp-btn-cart w-100 mb-2" @(Model.Vm.IsInStock ? null : "disabled")>
+                        <i class="bi bi-bag me-2"></i>ДОБАВИТЬ В КОРЗИНУ
+                    </button>
+                </form>
+
+                <form method="post"
+                      asp-page="/Favorites/Toggle"
+                      asp-route-slug="@Model.Vm.Slug"
+                      class="mb-3 js-favorite-form"
+                      data-slug="@Model.Vm.Slug">
+                    <button type="submit"
+                            class="btn pdp-btn-fav w-100 js-favorite-btn @(Model.Vm.IsFavorite ? "is-active" : null)"
+                            aria-pressed="@(Model.Vm.IsFavorite ? "true" : "false")"
+                            data-favorite="@(Model.Vm.IsFavorite ? "true" : "false")"
+                            data-label-on="В избранном"
+                            data-label-off="В избранное">
+                        <i class="bi @(Model.Vm.IsFavorite ? "bi-heart-fill" : "bi-heart") me-2 js-favorite-icon"></i>
+                        <span class="js-favorite-label">@(Model.Vm.IsFavorite ? "В избранном" : "В избранное")</span>
+                    </button>
+                </form>
+
+                <div class="pdp-ship">
+                    <i class="bi bi-truck"></i>
+                    <span>Бесплатная доставка от @Model.Vm.FreeShippingFrom.ToString("N0") ₽</span>
+                    <a asp-page="/Delivery" class="ms-auto small">Подробнее о доставке →</a>
+                </div>
+
+                <div class="pdp-acc accordion mt-3" id="pdpAcc">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accDesc">Описание</button>
+                        </h2>
+                        <div id="accDesc" class="accordion-collapse collapse" data-bs-parent="#pdpAcc">
+                            <div class="accordion-body">@(Model.Vm.Description ?? "Описание скоро появится.")</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accMat">Материал</button>
+                        </h2>
+                        <div id="accMat" class="accordion-collapse collapse" data-bs-parent="#pdpAcc">
+                            <div class="accordion-body">@(Model.Vm.Material ?? "—")</div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accCare">Уход</button>
+                        </h2>
+                        <div id="accCare" class="accordion-collapse collapse" data-bs-parent="#pdpAcc">
+                            <div class="accordion-body">
+                                @if (careLines.Length == 0)
+                                {
+                                    <span>—</span>
+                                }
+                                else
+                                {
+                                    <ul class="mb-0 ps-3">
+                                        @foreach (var line in careLines)
+                                        {
+                                            <li>@line</li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.Vm.RelatedProducts.Count > 0)
+    {
+        <section class="mt-5 pt-4">
+            <h2 class="h4 mb-3">Смотрите также</h2>
+            <div class="row g-3">
+                @foreach (var p in Model.Vm.RelatedProducts)
+                {
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <partial name="_ProductCard" model="p" />
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    <div class="modal fade" id="sizeChartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5">Таблица размеров</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img src="@Model.Vm.SizeChartImageUrl" alt="Таблица размеров" class="img-fluid" loading="lazy" />
+                </div>
+            </div>
+        </div>
+    </div>
+}
+</div>
+
+@section Scripts {
+<script>
+(() => {
+  const main = document.getElementById('mainProductImage');
+  const thumbs = [...document.querySelectorAll('.pdp-thumb')];
+  let index = 0;
+  const setImage = (src, i) => {
+    if (!main || !src) return;
+    main.src = src;
+    const external = /^https?:\/\//i.test(src);
+    if (external) main.setAttribute('referrerpolicy', 'no-referrer');
+    else main.removeAttribute('referrerpolicy');
+    index = i ?? index;
+    thumbs.forEach((t, ti) => t.classList.toggle('is-active', ti === index));
+  };
+  thumbs.forEach((btn, i) => btn.addEventListener('click', () => setImage(btn.dataset.src, i)));
+  document.getElementById('galleryPrev')?.addEventListener('click', () => {
+    if (!thumbs.length) return;
+    index = (index - 1 + thumbs.length) % thumbs.length;
+    setImage(thumbs[index].dataset.src, index);
+  });
+  document.getElementById('galleryNext')?.addEventListener('click', () => {
+    if (!thumbs.length) return;
+    index = (index + 1) % thumbs.length;
+    setImage(thumbs[index].dataset.src, index);
+  });
+
+  const form = document.getElementById('addToCartForm');
+  const sizes = document.getElementById('pdpSizes');
+  const sizeError = document.getElementById('sizeError');
+  const sizeHint = document.getElementById('sizeColorHint');
+  const colorInput = form?.querySelector('input[name="color"]');
+  const cartBtn = form?.querySelector('.pdp-btn-cart');
+
+  let stockMap = [];
+  try {
+    stockMap = JSON.parse(sizes?.dataset.stock || '[]');
+  } catch (_) { stockMap = []; }
+
+  const filterSizesForColor = () => {
+    if (!sizes) return;
+    const color = (colorInput?.value || '').trim();
+    const hasMatrix = Array.isArray(stockMap) && stockMap.length > 0;
+    let available = 0;
+
+    sizes.querySelectorAll('.pdp-size').forEach((label) => {
+      const sizeId = label.getAttribute('data-size-id');
+      const input = label.querySelector('input[type="radio"]');
+      let ok = true;
+      if (hasMatrix) {
+        ok = stockMap.some((s) =>
+          String(s.sizeId).toLowerCase() === String(sizeId).toLowerCase()
+          && (!color || String(s.color || '').toLowerCase() === color.toLowerCase())
+        );
+      }
+      label.classList.toggle('is-unavailable', !ok);
+      label.style.display = ok ? '' : 'none';
+      if (input) {
+        input.disabled = !ok;
+        if (!ok && input.checked) input.checked = false;
+      }
+      if (ok) available += 1;
+    });
+
+    sizeHint?.classList.toggle('d-none', available > 0);
+    if (cartBtn && !cartBtn.hasAttribute('data-force-disabled')) {
+      cartBtn.disabled = available === 0;
+    }
+  };
+
+  filterSizesForColor();
+
+  form?.addEventListener('submit', (e) => {
+    const selected = form.querySelector('input[name="sizeId"]:checked:not(:disabled)');
+    if (!selected) {
+      e.preventDefault();
+      sizes?.classList.add('is-invalid');
+      sizeError?.classList.remove('d-none');
+      if (sizeError) sizeError.textContent = 'Выберите размер перед добавлением в корзину.';
+      sizes?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  });
+  form?.querySelectorAll('input[name="sizeId"]').forEach((input) => {
+    input.addEventListener('change', () => {
+      sizes?.classList.remove('is-invalid');
+      sizeError?.classList.add('d-none');
+    });
+  });
+})();
+</script>
+}

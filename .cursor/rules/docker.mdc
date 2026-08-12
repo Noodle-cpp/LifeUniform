@@ -1,0 +1,9 @@
+---
+description: Docker
+globs: "**/Dockerfile"
+alwaysApply: false
+---
+
+# Docker
+
+Скилл **docker**: многоэтапная сборка, docker-up.sh.

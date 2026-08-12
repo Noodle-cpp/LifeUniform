@@ -1,0 +1,111 @@
+@{
+    var returnUrl = (ViewData["AuthReturnUrl"] as string)
+        ?? Context.Request.Path + Context.Request.QueryString;
+    if (string.IsNullOrWhiteSpace(returnUrl) || returnUrl.StartsWith("/Account/Auth", StringComparison.OrdinalIgnoreCase))
+        returnUrl = "/";
+    var authError = ViewData["AuthError"] as string;
+    var authName = ViewData["AuthName"] as string ?? "";
+    var authEmail = ViewData["AuthEmail"] as string ?? "";
+    var authPassword = ViewData["AuthPassword"] as string ?? "";
+    var openModal = ViewData["OpenAuthModal"] as string;
+}
+
+<div class="modal fade auth-modal" id="loginModal" tabindex="-1" aria-labelledby="loginModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content auth-modal__content">
+            <button type="button" class="auth-modal__close" data-bs-dismiss="modal" aria-label="Закрыть">×</button>
+            <div class="auth-modal__body">
+                <h2 class="auth-modal__title" id="loginModalTitle">Авторизация</h2>
+
+                @if (!string.IsNullOrEmpty(authError) && string.Equals(openModal, "login", StringComparison.OrdinalIgnoreCase))
+                {
+                    <div class="auth-modal__error">@authError</div>
+                }
+
+                <form method="post" asp-page="/Account/Auth" asp-page-handler="Login" class="auth-modal__form">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <div class="mb-3">
+                        <label class="auth-modal__label" for="loginEmail">Эл. почта</label>
+                        <input class="form-control auth-modal__input" id="loginEmail" name="input.Email" type="email"
+                               value="@authEmail"
+                               placeholder="Введите эл. почту" autocomplete="username" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="auth-modal__label" for="loginPassword">Пароль</label>
+                        <div class="auth-modal__password">
+                            <input class="form-control auth-modal__input" id="loginPassword" name="input.Password" type="password"
+                                   placeholder="Введите свой пароль" autocomplete="current-password" required />
+                            <button type="button" class="auth-modal__eye" data-toggle-password="loginPassword" aria-label="Показать пароль">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary auth-modal__submit w-100">Войти</button>
+                </form>
+
+                <div class="auth-modal__links">
+                    <button type="button" class="auth-modal__link" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#registerModal">
+                        Зарегистрироваться
+                    </button>
+                    <a class="auth-modal__link" asp-area="Identity" asp-page="/Account/ForgotPassword">Восстановить пароль</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade auth-modal" id="registerModal" tabindex="-1" aria-labelledby="registerModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content auth-modal__content">
+            <button type="button" class="auth-modal__close" data-bs-dismiss="modal" aria-label="Закрыть">×</button>
+            <div class="auth-modal__body">
+                <h2 class="auth-modal__title" id="registerModalTitle">Регистрация</h2>
+
+                @if (!string.IsNullOrEmpty(authError) && string.Equals(openModal, "register", StringComparison.OrdinalIgnoreCase))
+                {
+                    <div class="auth-modal__error">@authError</div>
+                }
+
+                <form method="post" asp-page="/Account/Auth" asp-page-handler="Register" class="auth-modal__form">
+                    <input type="hidden" name="returnUrl" value="@returnUrl" />
+                    <div class="mb-3">
+                        <label class="auth-modal__label" for="registerName">Имя</label>
+                        <input class="form-control auth-modal__input" id="registerName" name="input.Name" type="text"
+                               value="@authName"
+                               placeholder="Введите имя" autocomplete="name" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="auth-modal__label" for="registerEmail">Эл. почта</label>
+                        <input class="form-control auth-modal__input" id="registerEmail" name="input.Email" type="email"
+                               value="@authEmail"
+                               placeholder="Введите эл. почту" autocomplete="username" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="auth-modal__label" for="registerPassword">Пароль</label>
+                        <div class="auth-modal__password">
+                            <input class="form-control auth-modal__input" id="registerPassword" name="input.Password" type="password"
+                                   value="@authPassword"
+                                   placeholder="Создайте свой пароль" autocomplete="new-password" required minlength="6" />
+                            <button type="button" class="auth-modal__eye" data-toggle-password="registerPassword" aria-label="Показать пароль">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary auth-modal__submit w-100">Зарегистрироваться</button>
+                </form>
+
+                <p class="auth-modal__legal">
+                    Нажимая кнопку, вы соглашаетесь с обработкой персональных данных и
+                    <a asp-page="/Privacy">политикой конфиденциальности</a>.
+                </p>
+                <div class="auth-modal__footer">
+                    Уже зарегистрированы?
+                    <button type="button" class="auth-modal__link" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        Войти
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

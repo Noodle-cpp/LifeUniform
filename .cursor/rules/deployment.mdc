@@ -1,0 +1,13 @@
+---
+description: Деплой: Test (локально), RC, Prod
+alwaysApply: false
+---
+
+# Deployment
+
+Три среды:
+- **Test** — локально, `docker-up.sh`
+- **RC** — `deploy-rc.sh` (переменные: DEPLOY_HOST, PUBLIC_BASE_URL)
+- **Prod** — `deploy-prod.sh` (переменные: DEPLOY_HOST, PUBLIC_BASE_URL)
+
+Скилл **deploy**: команды деплоя, bootstrap, переменные.

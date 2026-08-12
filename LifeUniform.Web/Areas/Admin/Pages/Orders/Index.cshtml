@@ -1,0 +1,101 @@
+@page
+@model LifeUniform.Web.Areas.Admin.Pages.Orders.IndexModel
+@using LifeUniform.Domain.Orders
+@{
+    ViewData["Title"] = "Заказы";
+}
+
+<div class="admin-page-head">
+    <div>
+        <h1>Заказы</h1>
+        <p>Управление статусами и доставкой</p>
+    </div>
+</div>
+
+@if (Model.Vm.Count == 0)
+{
+    <div class="admin-card">
+        <div class="admin-empty">Заказов пока нет.</div>
+    </div>
+}
+else
+{
+    <div class="admin-card">
+        <div class="admin-card__body--flush">
+            <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Номер</th>
+                            <th>Клиент</th>
+                            <th>Доставка</th>
+                            <th class="text-end">Сумма</th>
+                            <th>Статус</th>
+                            <th class="text-end">Обновить</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var o in Model.Vm)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-semibold">@o.Number</div>
+                                <div class="text-muted small">@o.CreatedAt.ToLocalTime().ToString("g")</div>
+                            </td>
+                            <td>
+                                <div>@o.CustomerName</div>
+                                <div class="text-muted small">@o.CustomerPhone · @o.CustomerEmail</div>
+                            </td>
+                            <td>
+                                <div>@(o.DeliveryMethod == DeliveryMethod.Cdek ? "СДЭК" : "Почта России")</div>
+                                <div class="text-muted small">@o.DeliveryAddress</div>
+                            </td>
+                            <td class="text-end fw-bold">@o.GrandTotal.ToString("N0") ₽</td>
+                            <td><span class="admin-badge @StatusClass(o.Status)">@StatusLabel(o.Status)</span></td>
+                            <td>
+                                <form method="post" asp-page-handler="Status" class="d-flex gap-1 justify-content-end">
+                                    <input type="hidden" name="orderId" value="@o.Id" />
+                                    <select name="status" class="form-select form-select-sm" style="width:auto; min-width:9rem;">
+                                        @foreach (OrderStatus s in Enum.GetValues(typeof(OrderStatus)))
+                                        {
+                                            if (s == o.Status)
+                                            {
+                                                <option value="@((int)s)" selected>@StatusLabel(s)</option>
+                                            }
+                                            else
+                                            {
+                                                <option value="@((int)s)">@StatusLabel(s)</option>
+                                            }
+                                        }
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-primary">OK</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@functions {
+    static string StatusLabel(OrderStatus status) => status switch
+    {
+        OrderStatus.PendingPayment => "Ожидает оплаты",
+        OrderStatus.Paid => "Оплачен",
+        OrderStatus.Shipped => "Отправлен",
+        OrderStatus.Cancelled => "Отменён",
+        _ => status.ToString()
+    };
+
+    static string StatusClass(OrderStatus status) => status switch
+    {
+        OrderStatus.PendingPayment => "admin-badge--warn",
+        OrderStatus.Paid => "admin-badge--ok",
+        OrderStatus.Shipped => "admin-badge--ok",
+        OrderStatus.Cancelled => "admin-badge--danger",
+        _ => "admin-badge--muted"
+    };
+}

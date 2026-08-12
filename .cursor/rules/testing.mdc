@@ -1,0 +1,9 @@
+---
+description: Тесты
+globs: "**/*Tests*.cs"
+alwaysApply: false
+---
+
+# Testing
+
+Скилл **testing**: AAA, Moq, FluentAssertions.

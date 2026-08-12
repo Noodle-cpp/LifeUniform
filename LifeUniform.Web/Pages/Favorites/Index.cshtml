@@ -1,0 +1,29 @@
+﻿@page
+@model LifeUniform.Web.Pages.Favorites.IndexModel
+@{
+    ViewData["Title"] = "Избранное";
+}
+
+<div class="container py-4">
+<h1 class="h3 fw-bold mb-4">Избранное</h1>
+
+@if (Model.Vm.Count == 0)
+{
+    <div class="empty-state card shadow-sm border-0 p-4 text-center">
+        <div class="fw-semibold mb-1">В избранном пока пусто</div>
+        <p class="text-muted mb-3">Добавляйте товары сердцем на карточке или в каталоге.</p>
+        <a class="btn btn-primary" asp-page="/Catalog/Index">Перейти в каталог</a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var p in Model.Vm)
+        {
+            <div class="col-6 col-md-4 col-lg-3">
+                <partial name="_ProductCard" model="p" />
+            </div>
+        }
+    </div>
+}
+</div>

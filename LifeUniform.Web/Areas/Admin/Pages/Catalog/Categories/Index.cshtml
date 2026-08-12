@@ -1,0 +1,67 @@
+@page
+@model LifeUniform.Web.Areas.Admin.Pages.Catalog.Categories.IndexModel
+@{
+    ViewData["Title"] = "Категории";
+}
+
+<div class="admin-page-head">
+    <div>
+        <h1>Категории</h1>
+        <p>Разделы каталога для женщин и мужчин</p>
+    </div>
+    <a class="btn btn-primary" asp-page="/Catalog/Categories/Create">
+        <i class="bi bi-plus-lg me-1"></i> Добавить
+    </a>
+</div>
+
+<div class="admin-card">
+    <div class="admin-card__body--flush">
+        <div class="table-responsive">
+            <table class="table admin-table mb-0">
+                <thead>
+                    <tr>
+                        <th>Название</th>
+                        <th>Пол</th>
+                        <th>Slug</th>
+                        <th>Активна</th>
+                        <th class="text-end">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                @foreach (var c in Model.Vm)
+                {
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">@c.Name</div>
+                            <div class="text-muted small">Порядок: @c.SortOrder</div>
+                        </td>
+                        <td>
+                            <span class="admin-badge">
+                                @(((LifeUniform.Domain.Catalog.ProductGender)c.Gender) == LifeUniform.Domain.Catalog.ProductGender.Women ? "Женское" : "Мужское")
+                            </span>
+                        </td>
+                        <td class="text-muted">@c.Slug</td>
+                        <td>
+                            @if (c.IsActive)
+                            {
+                                <span class="admin-badge admin-badge--ok">Да</span>
+                            }
+                            else
+                            {
+                                <span class="admin-badge admin-badge--muted">Нет</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="admin-actions">
+                                <a class="btn btn-sm btn-primary"
+                                   asp-page="/Catalog/Categories/Edit"
+                                   asp-route-slug="@c.Slug">Изменить</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

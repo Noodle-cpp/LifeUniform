@@ -1,10 +1,182 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Life Uniform — медицинская одежда";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<section class="hero-banner">
+    <div class="hero-banner__stage">
+        <img src="~/images/hero-banner.png" alt="Life Uniforms — медицинская одежда" class="hero-banner__img" loading="eager" asp-append-version="true" />
+        <div class="hero-banner__overlay">
+            <div class="container hero-banner__content">
+                <p class="brand-eyebrow mb-2">Life Uniforms</p>
+                <h1 class="hero-banner__title">Медицинская одежда премиум класса</h1>
+                <p class="hero-banner__lead">Стандарт качества современной медицинской формы</p>
+                <div class="hero-banner__actions d-flex flex-wrap gap-2 mt-3">
+                    <a class="btn btn-outline-light btn-lg" asp-page="/Catalog/Index" asp-route-gender="1">Для женщин</a>
+                    <a class="btn btn-outline-light btn-lg" asp-page="/Catalog/Index" asp-route-gender="2">Для мужчин</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-banner__features">
+        <div class="container">
+            <div class="hero-features-bar">
+                <div class="hero-feature">
+                    <i class="bi bi-gem"></i>
+                    <div>
+                        <div class="fw-bold">Премиум качество</div>
+                        <div class="small text-muted">Безупречное исполнение в каждой детали</div>
+                    </div>
+                </div>
+                <div class="hero-feature">
+                    <i class="bi bi-layers"></i>
+                    <div>
+                        <div class="fw-bold">Технологичная ткань</div>
+                        <div class="small text-muted">Дышащие, износостойкие и лёгкие материалы</div>
+                    </div>
+                </div>
+                <div class="hero-feature">
+                    <i class="bi bi-person-walking"></i>
+                    <div>
+                        <div class="fw-bold">Комфорт в движении</div>
+                        <div class="small text-muted">Эргономичный крой для свободы движений</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container py-5">
+    @if (Model.Vm.PromoOffers.Count > 0)
+    {
+    <section class="mb-5">
+            <div class="d-flex align-items-end justify-content-between mb-3">
+                <h2 class="section-title">Спецпредложения</h2>
+            </div>
+            <div class="row g-3">
+                @foreach (var offer in Model.Vm.PromoOffers)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <a class="promo-card" href="@(offer.LinkUrl ?? "/Catalog")">
+                            <div class="promo-card__media">
+                                <img src="@offer.ImageUrl" alt="@offer.Title" loading="lazy" />
+                                @if (!string.IsNullOrWhiteSpace(offer.Badge))
+                                {
+                                    <span class="promo-card__badge">@offer.Badge</span>
+                                }
+                            </div>
+                            <div class="promo-card__body">
+                                <div class="fw-bold">@offer.Title</div>
+                                @if (!string.IsNullOrWhiteSpace(offer.Subtitle))
+                                {
+                                    <div class="small text-muted">@offer.Subtitle</div>
+                                }
+                                <div class="mt-2 d-flex align-items-baseline gap-2">
+                                    @if (offer.Price is not null)
+                                    {
+                                        <span class="fw-bold">@offer.Price.Value.ToString("0.##") руб.</span>
+                                    }
+                                    @if (offer.OldPrice is not null)
+                                    {
+                                        <span class="text-muted text-decoration-line-through small">@offer.OldPrice.Value.ToString("0.##") руб.</span>
+                                    }
+                                </div>
+                                <span class="btn btn-sm btn-primary mt-3">@(offer.LinkText ?? "Подробнее")</span>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        </section>
+    }
+
+    @{
+        var womenCategories = Model.Vm.Categories.Where(c => c.Gender == 1).ToList();
+        var menCategories = Model.Vm.Categories.Where(c => c.Gender == 2).ToList();
+    }
+
+    <section class="mb-5 gender-shop">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="gender-shop__block gender-shop__block--women">
+                    <div class="gender-shop__head">
+                        <h2 class="gender-shop__title">Женщинам</h2>
+                        <a class="section-link" asp-page="/Catalog/Index" asp-route-gender="1">Каталог →</a>
+                    </div>
+                    <a class="collection-banner" asp-page="/Catalog/Index" asp-route-gender="1">
+                        <img src="~/images/women-collection.png" alt="Женская коллекция" loading="lazy" asp-append-version="true" />
+                        <span class="collection-banner__label">Смотреть коллекцию <span aria-hidden="true">→</span></span>
+                    </a>
+                    @if (womenCategories.Count > 0)
+                    {
+                        <div class="gender-shop__cats">
+                            <div class="gender-shop__cats-label">Категории</div>
+                            <div class="row g-2">
+                                @foreach (var c in womenCategories)
+                                {
+                                    <div class="col-6">
+                                        <a class="category-tile category-tile--compact h-100"
+                                           asp-page="/Catalog/Index"
+                                           asp-route-categoryId="@c.Id"
+                                           asp-route-gender="@c.Gender">
+                                            <div class="fw-semibold">@c.Name</div>
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="gender-shop__block gender-shop__block--men">
+                    <div class="gender-shop__head">
+                        <h2 class="gender-shop__title">Мужчинам</h2>
+                        <a class="section-link" asp-page="/Catalog/Index" asp-route-gender="2">Каталог →</a>
+                    </div>
+                    <a class="collection-banner" asp-page="/Catalog/Index" asp-route-gender="2">
+                        <img src="~/images/men-collection.png" alt="Мужская коллекция" loading="lazy" asp-append-version="true" />
+                        <span class="collection-banner__label">Смотреть коллекцию <span aria-hidden="true">→</span></span>
+                    </a>
+                    @if (menCategories.Count > 0)
+                    {
+                        <div class="gender-shop__cats">
+                            <div class="gender-shop__cats-label">Категории</div>
+                            <div class="row g-2">
+                                @foreach (var c in menCategories)
+                                {
+                                    <div class="col-6">
+                                        <a class="category-tile category-tile--compact h-100"
+                                           asp-page="/Catalog/Index"
+                                           asp-route-categoryId="@c.Id"
+                                           asp-route-gender="@c.Gender">
+                                            <div class="fw-semibold">@c.Name</div>
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-2">
+        <div class="d-flex align-items-end justify-content-between mb-3">
+            <h2 class="section-title">Популярные товары</h2>
+            <a asp-page="/Catalog/Index" class="section-link">Весь каталог →</a>
+        </div>
+        <div class="row g-3">
+            @foreach (var p in Model.Vm.PopularProducts)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <partial name="_ProductCard" model="p" />
+                </div>
+            }
+        </div>
+    </section>
 </div>

@@ -1,3 +1,8 @@
 <Solution>
+  <Project Path="LifeUniform.Application/LifeUniform.Application.csproj" />
+  <Project Path="LifeUniform.Domain/LifeUniform.Domain.csproj" />
+  <Project Path="LifeUniform.Infrastructure/LifeUniform.Infrastructure.csproj" />
+  <Project Path="LifeUniform.Tests.Integration/LifeUniform.Tests.Integration.csproj" />
+  <Project Path="LifeUniform.Tests.Unit/LifeUniform.Tests.Unit.csproj" />
   <Project Path="LifeUniform.Web/LifeUniform.Web.csproj" />
 </Solution>

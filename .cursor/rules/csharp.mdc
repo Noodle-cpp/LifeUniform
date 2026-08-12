@@ -1,0 +1,9 @@
+---
+description: C# / .NET backend
+globs: "**/*.cs"
+alwaysApply: false
+---
+
+# Backend
+
+Скилл **backend**: Clean Architecture, CQRS, camelCase JSON, MediatR, EF Core.

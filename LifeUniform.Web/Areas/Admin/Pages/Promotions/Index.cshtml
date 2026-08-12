@@ -1,0 +1,123 @@
+@page
+@model LifeUniform.Web.Areas.Admin.Pages.Promotions.IndexModel
+@using LifeUniform.Domain.Promotions
+@{
+    ViewData["Title"] = "Промокоды";
+}
+
+<div class="admin-page-head">
+    <div>
+        <h1>Промокоды</h1>
+        <p>Скидки при оформлении заказа</p>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <form method="post" class="admin-card">
+            <div class="admin-card__body">
+                <h2 class="h6 fw-bold mb-3">Создать промокод</h2>
+                <div class="mb-3">
+                    <label asp-for="Input.Code" class="form-label"></label>
+                    <input asp-for="Input.Code" class="form-control" placeholder="WELCOME10" />
+                    <span asp-validation-for="Input.Code" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.Type" class="form-label"></label>
+                    <select asp-for="Input.Type" class="form-select">
+                        <option value="@((int)PromotionDiscountType.Percent)">Процент</option>
+                        <option value="@((int)PromotionDiscountType.Fixed)">Фиксированная сумма</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.Value" class="form-label"></label>
+                    <input asp-for="Input.Value" class="form-control" />
+                    <span asp-validation-for="Input.Value" class="text-danger"></span>
+                </div>
+                <div class="mb-3">
+                    <label asp-for="Input.MinOrderAmount" class="form-label"></label>
+                    <input asp-for="Input.MinOrderAmount" class="form-control" />
+                </div>
+                <div class="form-check mb-3">
+                    <input asp-for="Input.IsActive" class="form-check-input" />
+                    <label asp-for="Input.IsActive" class="form-check-label"></label>
+                </div>
+                <button type="submit" class="btn btn-primary">Создать</button>
+            </div>
+        </form>
+    </div>
+    <div class="col-lg-7">
+        <div class="admin-card">
+            <div class="admin-card__body--flush">
+            <div class="table-responsive">
+                <table class="table admin-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Код</th>
+                            <th>Тип</th>
+                            <th class="text-end">Значение</th>
+                            <th>Статус</th>
+                            <th class="text-end">Исп.</th>
+                            <th class="text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Vm.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="6" class="admin-empty">Промокодов пока нет</td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @foreach (var p in Model.Vm)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@p.Code</td>
+                                    <td>@(p.Type == (int)PromotionDiscountType.Percent ? "%" : "₽")</td>
+                                    <td class="text-end">@p.Value.ToString("0.##")</td>
+                                    <td>
+                                        @if (p.IsActive)
+                                        {
+                                            <span class="admin-badge admin-badge--ok">Активен</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="admin-badge admin-badge--muted">Выключен</span>
+                                        }
+                                    </td>
+                                    <td class="text-end">@p.RedemptionCount@(p.MaxRedemptions is int max ? $"/{max}" : "")</td>
+                                    <td class="text-end">
+                                        <div class="d-flex flex-wrap gap-1 justify-content-end">
+                                            <a class="btn btn-sm btn-outline-primary"
+                                               asp-area="Admin"
+                                               asp-page="/Promotions/Edit"
+                                               asp-route-id="@p.Id">Изменить</a>
+                                            <form method="post" asp-page-handler="Toggle" class="d-inline">
+                                                <input type="hidden" name="id" value="@p.Id" />
+                                                <input type="hidden" name="isActive" value="@(!p.IsActive)" />
+                                                <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                                    @(p.IsActive ? "Выключить" : "Включить")
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

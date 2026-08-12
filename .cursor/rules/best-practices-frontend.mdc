@@ -1,0 +1,11 @@
+---
+description: Best practices — frontend
+globs: "frontend/**/*"
+alwaysApply: false
+---
+
+# Best practices (frontend)
+
+**camelCase** — типы и поля от API (hotelId, countryName). Composition API, `<script setup>`, TypeScript.
+
+DRY, KISS, YAGNI. Код ревью: структура компонентов, Pinia/роутинг, производительность (key, v-show vs v-if).

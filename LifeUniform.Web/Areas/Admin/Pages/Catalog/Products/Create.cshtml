@@ -1,0 +1,182 @@
+@page
+@model LifeUniform.Web.Areas.Admin.Pages.Catalog.Products.CreateModel
+
+@{
+    ViewData["Title"] = "Добавление товара";
+}
+
+<div class="container py-4">
+<h1 class="h4 fw-bold mb-3">Добавить товар</h1>
+
+<form method="post" enctype="multipart/form-data" class="card p-3 shadow-sm">
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Название</label>
+            <input class="form-control" asp-for="Vm.Name" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Короткое имя (AURA)</label>
+            <input class="form-control" asp-for="Vm.ShortName" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Артикул</label>
+            <input class="form-control" asp-for="Vm.Sku" placeholder="LU-AURA-001" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Slug</label>
+            <input class="form-control" asp-for="Vm.Slug" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Пол</label>
+            <select class="form-select" asp-for="Vm.Gender">
+                <option value="1">Женское</option>
+                <option value="2">Мужское</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Категория</label>
+            <select class="form-select" asp-for="Vm.CategoryId">
+                @foreach (var c in Model.Categories)
+                {
+                    <option value="@c.Id">@c.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label" asp-for="Vm.Price">Цена</label>
+            <div class="input-group">
+                <input class="form-control js-money"
+                       asp-for="Vm.Price"
+                       type="number"
+                       inputmode="decimal"
+                       min="0"
+                       step="1"
+                       placeholder="0" />
+                <span class="input-group-text">₽</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" asp-for="Vm.DiscountPrice">Цена со скидкой</label>
+            <div class="input-group">
+                <input class="form-control js-money"
+                       asp-for="Vm.DiscountPrice"
+                       type="number"
+                       inputmode="decimal"
+                       min="0"
+                       step="1"
+                       placeholder="необязательно" />
+                <span class="input-group-text">₽</span>
+            </div>
+            <div class="form-text">Оставьте пустым, если скидки нет</div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" asp-for="Vm.FreeShippingFrom">Бесплатная доставка от</label>
+            <div class="input-group">
+                <input class="form-control js-money"
+                       asp-for="Vm.FreeShippingFrom"
+                       type="number"
+                       inputmode="decimal"
+                       min="0"
+                       step="100"
+                       placeholder="8000" />
+                <span class="input-group-text">₽</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Popularity</label>
+            <input class="form-control" asp-for="Vm.PopularityRank" type="number" min="0" step="1" />
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Описание</label>
+            <textarea class="form-control" asp-for="Vm.Description" rows="3"></textarea>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Материал</label>
+            <input class="form-control" asp-for="Vm.Material" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Таблица размеров (URL)</label>
+            <input class="form-control" asp-for="Vm.SizeChartImageUrl" />
+        </div>
+        <div class="col-12">
+            <label class="form-label">Уход</label>
+            <textarea class="form-control" asp-for="Vm.CareInstructions" rows="3"></textarea>
+        </div>
+        <div class="col-12">
+            <div class="form-check">
+                <input class="form-check-input" asp-for="Vm.IsInStock" />
+                <label class="form-check-label" asp-for="Vm.IsInStock">Есть в наличии</label>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="fw-semibold">Цвета</div>
+                <button type="button" class="btn btn-sm btn-outline-secondary" id="addColorBtn">+ Добавить цвет</button>
+            </div>
+            <div class="form-text mb-2">Пустые строки при сохранении игнорируются. Чтобы убрать цвет — нажмите «Удалить».</div>
+            <div id="colorRows">
+                @for (var i = 0; i < Model.Vm.Colors.Count; i++)
+                {
+                    <div class="row g-2 mb-2 align-items-end color-row" data-color-row>
+                        <div class="col-md-3">
+                            <input class="form-control" asp-for="Vm.Colors[i].Name" placeholder="Название" data-color-name />
+                        </div>
+                        <div class="col-md-2">
+                            <input class="form-control form-control-color w-100" type="color" asp-for="Vm.Colors[i].Hex" />
+                        </div>
+                        <div class="col-md-5">
+                            <input class="form-control" asp-for="Vm.Colors[i].ImageUrl" placeholder="URL фото цвета (необязательно)" />
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-outline-danger w-100" data-remove-color>Удалить</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Фото (можно несколько)</label>
+            <input class="form-control" type="file" name="ImageFiles" accept="image/*" multiple />
+            <div class="form-text">Без фото будет показан плейсхолдер.</div>
+        </div>
+
+            <div class="col-12">
+                <div class="mb-2 fw-semibold">Доступные размеры товара</div>
+                <div class="form-text mb-2">Размеры, которые вообще бывают у модели. Наличие по цветам — ниже.</div>
+                <div class="admin-size-pills" id="productSizePills">
+                    @foreach (var s in Model.Sizes)
+                    {
+                        <label class="admin-size-pill">
+                            <input type="checkbox"
+                                   name="SelectedSizeIds"
+                                   value="@s.Id"
+                                   data-size-id="@s.Id"
+                                   data-size-label="@s.Label"
+                                   class="js-product-size" />
+                            <span>@s.Label</span>
+                        </label>
+                    }
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="fw-semibold mb-2">Наличие: цвет × размер</div>
+                <div class="form-text mb-2">Отметьте, в каких цветах какой размер есть в наличии. На витрине покупатель увидит только доступные размеры для выбранного цвета.</div>
+                <div id="colorSizeMatrix" class="admin-stock-matrix"></div>
+            </div>
+    </div>
+    <div class="d-flex gap-2 mt-3">
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+        <a class="btn btn-outline-secondary" asp-page="/Catalog/Index" asp-area="Admin">Отмена</a>
+    </div>
+</form>
+</div>
+
+@section Scripts {
+<script src="~/js/admin-product-form.js" asp-append-version="true"></script>
+}
+

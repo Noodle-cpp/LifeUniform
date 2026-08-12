@@ -1,8 +1,18 @@
 ﻿@page
 @model PrivacyModel
 @{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Политика конфиденциальности";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<div class="container py-4">
+    <h1 class="h3 fw-bold mb-3">@ViewData["Title"]</h1>
+    <p class="text-muted">
+        Мы обрабатываем персональные данные (имя, телефон, email, адрес доставки) только для оформления
+        и исполнения заказов, обратной связи и улучшения сервиса Life Uniforms.
+    </p>
+    <ul class="ps-3">
+        <li class="mb-2">Данные не передаются третьим лицам, кроме служб доставки и платёжных провайдеров.</li>
+        <li class="mb-2">Вы можете запросить удаление или уточнение данных, написав на hello@lifeuniforms.ru.</li>
+        <li>Используя сайт, вы соглашаетесь с обработкой данных в указанных целях.</li>
+    </ul>
+</div>

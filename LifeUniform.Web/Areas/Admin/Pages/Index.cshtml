@@ -1,0 +1,147 @@
+@page
+@model LifeUniform.Web.Areas.Admin.Pages.IndexModel
+@using LifeUniform.Domain.Orders
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<div class="admin-page-head">
+    <div>
+        <h1>Обзор</h1>
+        <p>Сводка по магазину и быстрые действия</p>
+    </div>
+    <a class="btn btn-primary" asp-area="Admin" asp-page="/Catalog/Products/Create">
+        <i class="bi bi-plus-lg me-1"></i> Новый товар
+    </a>
+</div>
+
+<div class="admin-stat-grid">
+    <div class="admin-stat">
+        <div class="admin-stat__label">Товары</div>
+        <div class="admin-stat__value">@Model.ProductsCount</div>
+        <div class="admin-stat__hint">в каталоге</div>
+    </div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Заказы</div>
+        <div class="admin-stat__value">@Model.OrdersCount</div>
+        <div class="admin-stat__hint">ожидают оплаты: @Model.PendingOrdersCount</div>
+    </div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Выручка</div>
+        <div class="admin-stat__value">@Model.OrdersRevenue.ToString("N0") ₽</div>
+        <div class="admin-stat__hint">оплаченные / отправленные</div>
+    </div>
+    <div class="admin-stat">
+        <div class="admin-stat__label">Маркетинг</div>
+        <div class="admin-stat__value">@Model.ActivePromosCount / @Model.ActiveOffersCount</div>
+        <div class="admin-stat__hint">промокоды / баннеры</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="admin-card h-100">
+            <div class="admin-card__head">
+                <h2>Быстрые действия</h2>
+            </div>
+            <div class="admin-card__body">
+                <div class="admin-quick">
+                    <a class="admin-quick__item" asp-area="Admin" asp-page="/Catalog/Index">
+                        <span class="admin-quick__icon"><i class="bi bi-bag"></i></span>
+                        <span>
+                            <span class="admin-quick__title d-block">Товары</span>
+                            <span class="admin-quick__desc">Редактировать каталог</span>
+                        </span>
+                    </a>
+                    <a class="admin-quick__item" asp-area="Admin" asp-page="/Orders/Index">
+                        <span class="admin-quick__icon"><i class="bi bi-receipt"></i></span>
+                        <span>
+                            <span class="admin-quick__title d-block">Заказы</span>
+                            <span class="admin-quick__desc">Статусы и доставка</span>
+                        </span>
+                    </a>
+                    <a class="admin-quick__item" asp-area="Admin" asp-page="/Catalog/Categories/Index">
+                        <span class="admin-quick__icon"><i class="bi bi-tags"></i></span>
+                        <span>
+                            <span class="admin-quick__title d-block">Категории</span>
+                            <span class="admin-quick__desc">@Model.CategoriesCount шт.</span>
+                        </span>
+                    </a>
+                    <a class="admin-quick__item" asp-area="Admin" asp-page="/Offers/Index">
+                        <span class="admin-quick__icon"><i class="bi bi-image"></i></span>
+                        <span>
+                            <span class="admin-quick__title d-block">Реклама</span>
+                            <span class="admin-quick__desc">Баннеры на главной</span>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="admin-card h-100">
+            <div class="admin-card__head">
+                <h2>Последние заказы</h2>
+                <a class="section-link" asp-area="Admin" asp-page="/Orders/Index">Все →</a>
+            </div>
+            <div class="admin-card__body--flush">
+                @if (Model.RecentOrders.Count == 0)
+                {
+                    <div class="admin-empty">Заказов пока нет</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table admin-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Номер</th>
+                                    <th>Клиент</th>
+                                    <th>Статус</th>
+                                    <th class="text-end">Сумма</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var o in Model.RecentOrders)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">@o.Number</div>
+                                        <div class="text-muted small">@o.CreatedAt.ToLocalTime().ToString("g")</div>
+                                    </td>
+                                    <td>
+                                        <div>@o.CustomerName</div>
+                                        <div class="text-muted small">@o.CustomerPhone</div>
+                                    </td>
+                                    <td><span class="admin-badge @StatusClass(o.Status)">@StatusLabel(o.Status)</span></td>
+                                    <td class="text-end fw-bold">@o.GrandTotal.ToString("N0") ₽</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    static string StatusLabel(OrderStatus status) => status switch
+    {
+        OrderStatus.PendingPayment => "Ожидает оплаты",
+        OrderStatus.Paid => "Оплачен",
+        OrderStatus.Shipped => "Отправлен",
+        OrderStatus.Cancelled => "Отменён",
+        _ => status.ToString()
+    };
+
+    static string StatusClass(OrderStatus status) => status switch
+    {
+        OrderStatus.PendingPayment => "admin-badge--warn",
+        OrderStatus.Paid => "admin-badge--ok",
+        OrderStatus.Shipped => "admin-badge--ok",
+        OrderStatus.Cancelled => "admin-badge--danger",
+        _ => "admin-badge--muted"
+    };
+}

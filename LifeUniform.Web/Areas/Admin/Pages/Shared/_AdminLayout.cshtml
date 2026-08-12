@@ -1,0 +1,108 @@
+@using Microsoft.AspNetCore.Identity
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Админ · Life Uniforms</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/admin.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+@{
+    var currentPage = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+    bool Nav(string page) => string.Equals(currentPage, page, StringComparison.OrdinalIgnoreCase);
+}
+<div class="admin-shell">
+    <aside class="admin-sidebar">
+        <a class="admin-brand" asp-area="Admin" asp-page="/Index">
+            <span class="admin-brand__mark">LU</span>
+            <span>
+                <span class="admin-brand__name">Life Uniforms</span>
+                <span class="admin-brand__sub">Админ-панель</span>
+            </span>
+        </a>
+
+        <nav class="admin-nav">
+            <div class="admin-nav__label">Обзор</div>
+            <a class="admin-nav__link @(Nav("/Index") ? "is-active" : null)"
+               asp-area="Admin" asp-page="/Index">
+                <i class="bi bi-grid-1x2"></i> Главная
+            </a>
+
+            <div class="admin-nav__label">Магазин</div>
+            <a class="admin-nav__link @(Nav("/Catalog/Index") || currentPage.StartsWith("/Catalog/Products", StringComparison.OrdinalIgnoreCase) || Nav("/Catalog/EditSizes") ? "is-active" : null)"
+               asp-area="Admin" asp-page="/Catalog/Index">
+                <i class="bi bi-bag"></i> Товары
+            </a>
+            <a class="admin-nav__link @(currentPage.StartsWith("/Catalog/Categories", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)"
+               asp-area="Admin" asp-page="/Catalog/Categories/Index">
+                <i class="bi bi-tags"></i> Категории
+            </a>
+            <a class="admin-nav__link @(Nav("/Orders/Index") ? "is-active" : null)"
+               asp-area="Admin" asp-page="/Orders/Index">
+                <i class="bi bi-receipt"></i> Заказы
+            </a>
+
+            <div class="admin-nav__label">Маркетинг</div>
+            <a class="admin-nav__link @(currentPage.StartsWith("/Promotions", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)"
+               asp-area="Admin" asp-page="/Promotions/Index">
+                <i class="bi bi-percent"></i> Промокоды
+            </a>
+            <a class="admin-nav__link @(Nav("/Offers/Index") ? "is-active" : null)"
+               asp-area="Admin" asp-page="/Offers/Index">
+                <i class="bi bi-image"></i> Реклама
+            </a>
+        </nav>
+
+        <div class="admin-sidebar__foot">
+            <a class="admin-nav__link" asp-area="" asp-page="/Index" target="_blank">
+                <i class="bi bi-box-arrow-up-right"></i> Открыть сайт
+            </a>
+            <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/">
+                <button type="submit" class="admin-nav__link admin-nav__link--btn">
+                    <i class="bi bi-box-arrow-right"></i> Выйти
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <button type="button" class="admin-menu-btn d-lg-none" id="adminMenuBtn" aria-label="Меню">
+                <i class="bi bi-list"></i>
+            </button>
+            <div class="admin-topbar__title">@ViewData["Title"]</div>
+            <div class="admin-topbar__user">
+                <i class="bi bi-person-circle"></i>
+                <span>@User.Identity?.Name</span>
+            </div>
+        </header>
+        <main class="admin-content">
+            @RenderBody()
+        </main>
+    </div>
+</div>
+
+<div class="admin-sidebar-backdrop d-lg-none" id="adminSidebarBackdrop"></div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (() => {
+    const shell = document.querySelector('.admin-shell');
+    const btn = document.getElementById('adminMenuBtn');
+    const backdrop = document.getElementById('adminSidebarBackdrop');
+    const toggle = () => shell?.classList.toggle('is-sidebar-open');
+    btn?.addEventListener('click', toggle);
+    backdrop?.addEventListener('click', toggle);
+  })();
+</script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

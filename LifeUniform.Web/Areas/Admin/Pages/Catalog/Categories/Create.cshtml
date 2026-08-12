@@ -1,0 +1,42 @@
+@page
+@model LifeUniform.Web.Areas.Admin.Pages.Catalog.Categories.CreateModel
+
+@{
+    ViewData["Title"] = "Добавление категории (админ)";
+}
+
+<h1 class="h4 fw-bold mb-3">Добавить категорию</h1>
+
+<form method="post" class="card p-3 shadow-sm">
+    <div class="mb-3">
+        <label class="form-label">Название</label>
+        <input class="form-control" asp-for="Vm.Name" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Слаг (slug)</label>
+        <input class="form-control" asp-for="Vm.Slug" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Пол</label>
+        <select class="form-select" asp-for="Vm.Gender">
+            <option value="1">Женское</option>
+            <option value="2">Мужское</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">SortOrder</label>
+        <input class="form-control" type="number" asp-for="Vm.SortOrder" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Описание</label>
+        <textarea class="form-control" asp-for="Vm.Description"></textarea>
+    </div>
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" asp-for="Vm.IsActive" />
+        <label class="form-check-label" asp-for="Vm.IsActive">Активна</label>
+    </div>
+
+    <button class="btn btn-primary" type="submit">Сохранить</button>
+    <a class="btn btn-outline-secondary" asp-page="/Catalog/Categories/Index">Отмена</a>
+</form>
+

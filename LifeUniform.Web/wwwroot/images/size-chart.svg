@@ -1,0 +1,12 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="900" height="600" viewBox="0 0 900 600">
+  <rect width="900" height="600" fill="#f8fafc"/>
+  <text x="450" y="60" text-anchor="middle" font-family="Arial" font-size="28" font-weight="700" fill="#0f766e">Таблица размеров Life Uniforms</text>
+  <text x="450" y="100" text-anchor="middle" font-family="Arial" font-size="16" fill="#64748b">Ориентировочные значения (см)</text>
+  <g font-family="Arial" font-size="16" fill="#1e293b">
+    <text x="80" y="180">Размер</text><text x="220" y="180">S</text><text x="320" y="180">M</text><text x="420" y="180">L</text><text x="520" y="180">XL</text><text x="620" y="180">2XL</text><text x="720" y="180">3XL</text>
+    <line x1="60" y1="200" x2="840" y2="200" stroke="#cbd5e1"/>
+    <text x="80" y="240">Грудь</text><text x="220" y="240">86-90</text><text x="320" y="240">90-94</text><text x="420" y="240">94-98</text><text x="520" y="240">98-104</text><text x="620" y="240">104-110</text><text x="720" y="240">110-116</text>
+    <text x="80" y="290">Талия</text><text x="220" y="290">66-70</text><text x="320" y="290">70-74</text><text x="420" y="290">74-78</text><text x="520" y="290">78-84</text><text x="620" y="290">84-90</text><text x="720" y="290">90-96</text>
+    <text x="80" y="340">Бёдра</text><text x="220" y="340">90-94</text><text x="320" y="340">94-98</text><text x="420" y="340">98-102</text><text x="520" y="340">102-108</text><text x="620" y="340">108-114</text><text x="720" y="340">114-120</text>
+  </g>
+</svg>

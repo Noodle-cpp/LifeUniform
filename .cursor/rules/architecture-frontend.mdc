@@ -1,0 +1,9 @@
+---
+description: Архитектура — frontend
+globs: "frontend/**/*"
+alwaysApply: false
+---
+
+# Архитектура (frontend)
+
+Скилл **frontend**: Composition API, Pinia, Vue Router. Структура: компоненты (template/script/style), stores, сервисы API, роутинг.

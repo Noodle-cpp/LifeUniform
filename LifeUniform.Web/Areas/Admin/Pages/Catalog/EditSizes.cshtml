@@ -1,0 +1,45 @@
+@page "{slug}"
+@model LifeUniform.Web.Areas.Admin.Pages.Catalog.EditSizesModel
+
+@{
+    ViewData["Title"] = $"Редактирование размеров: {Model.Vm?.Name ?? ""}";
+}
+
+<h1 class="h4 fw-bold mb-3">Доступные размеры</h1>
+
+@if (Model.IsNotFound)
+{
+    <div class="alert alert-warning">Товар не найден.</div>
+}
+else
+{
+    <div class="mb-3">
+        <div class="fw-semibold">@Model.Vm.Name</div>
+        <div class="text-muted small">Slug: @Model.Vm.Slug</div>
+    </div>
+
+    <form method="post" class="card p-3 shadow-sm">
+        <input type="hidden" name="Slug" value="@Model.Slug" />
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            @foreach (var s in Model.Vm.Sizes)
+            {
+                <div class="form-check form-check-inline border rounded p-2">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="SelectedSizeIds"
+                        value="@s.SizeId"
+                        @(s.IsSelected ? "checked" : "") />
+                    <label class="form-check-label ms-1">@s.Label</label>
+                </div>
+            }
+        </div>
+
+        <div class="d-flex gap-2">
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+            <a class="btn btn-outline-secondary" href="/">На главную</a>
+        </div>
+    </form>
+}
+

@@ -1,0 +1,11 @@
+---
+description: Best practices — backend
+globs: "services/**/*"
+alwaysApply: false
+---
+
+# Best practices (backend)
+
+**JSON camelCase** — все API: `AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase)`.
+
+DRY, KISS, YAGNI. Код ревью: слои (Domain → Application → Infrastructure → API), тесты, безопасность, CQRS/MediatR.

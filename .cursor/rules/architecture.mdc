@@ -1,0 +1,9 @@
+---
+description: Архитектура — backend
+globs: "services/**/*"
+alwaysApply: false
+---
+
+# Архитектура (backend)
+
+Скилл **backend**: Domain → Application → Infrastructure → API. CQRS/MediatR в Application.

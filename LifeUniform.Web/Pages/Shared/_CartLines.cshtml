@@ -1,0 +1,75 @@
+@model LifeUniform.Application.Orders.Dto.CartDto
+@{
+    var editable = (bool)(ViewData["CartEditable"] ?? true);
+    var updatePage = (string)(ViewData["CartUpdatePage"] ?? "/Cart/Index");
+}
+
+@if (Model.Items.Count == 0)
+{
+    <div class="empty-state p-4 text-center">
+        <div class="fw-semibold mb-1">Корзина пуста</div>
+        <p class="text-muted mb-3">Добавьте товары из каталога — они появятся здесь.</p>
+        <a class="btn btn-primary" asp-page="/Catalog/Index">Перейти в каталог</a>
+    </div>
+}
+else
+{
+    <div class="cart-lines">
+        @foreach (var item in Model.Items)
+        {
+            <div class="cart-line">
+                <a class="cart-line__img" asp-page="/Catalog/Details" asp-route-slug="@item.ProductSlug">
+                    <img src="@(string.IsNullOrWhiteSpace(item.PreviewImageUrl) ? "/images/products/scrub-teal.jpg" : item.PreviewImageUrl)"
+                         alt="@item.ProductName" loading="lazy" />
+                </a>
+                <div class="cart-line__info">
+                    <a class="cart-line__name" asp-page="/Catalog/Details" asp-route-slug="@item.ProductSlug">@item.ProductName</a>
+                    <div class="cart-line__meta">
+                        @if (!string.IsNullOrWhiteSpace(item.ColorName))
+                        {
+                            <span>Цвет: @item.ColorName</span>
+                        }
+                        <span>Размер: @item.SizeLabel</span>
+                    </div>
+                </div>
+
+                @if (editable)
+                {
+                    <div class="cart-line__qty">
+                        <form method="post" asp-page="@updatePage" asp-page-handler="Update" class="cart-qty">
+                            <input type="hidden" name="productId" value="@item.ProductId" />
+                            <input type="hidden" name="sizeId" value="@item.SizeId" />
+                            <input type="hidden" name="colorName" value="@item.ColorName" />
+                            <button class="cart-qty__btn" type="submit" name="quantity" value="@(item.Quantity - 1)" aria-label="Уменьшить">−</button>
+                            <span class="cart-qty__val">@item.Quantity</span>
+                            <button class="cart-qty__btn" type="submit" name="quantity" value="@(item.Quantity + 1)" aria-label="Увеличить">+</button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div class="cart-line__qty">
+                        <span class="cart-qty__val">@item.Quantity</span>
+                    </div>
+                }
+
+                <div class="cart-line__price">@item.LineTotal.ToString("N0") ₽</div>
+
+                @if (editable)
+                {
+                    <form method="post" asp-page="@updatePage" asp-page-handler="Remove" class="cart-line__remove">
+                        <input type="hidden" name="productId" value="@item.ProductId" />
+                        <input type="hidden" name="sizeId" value="@item.SizeId" />
+                        <input type="hidden" name="colorName" value="@item.ColorName" />
+                        <button type="submit" class="cart-remove-btn" aria-label="Удалить" title="Удалить">×</button>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+
+    <div class="cart-subtotal">
+        <span>Сумма:</span>
+        <strong>@Model.ItemsTotal.ToString("N0") ₽</strong>
+    </div>
+}

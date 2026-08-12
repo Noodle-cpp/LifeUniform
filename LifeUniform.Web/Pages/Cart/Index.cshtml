@@ -1,0 +1,53 @@
+﻿@page
+@model LifeUniform.Web.Pages.Cart.IndexModel
+@{
+    ViewData["Title"] = "Корзина";
+    ViewData["CartEditable"] = true;
+    ViewData["CartUpdatePage"] = "/Cart/Index";
+}
+
+<div class="container py-4 py-lg-5">
+@if (Model.Vm.Items.Count == 0)
+{
+    <h1 class="section-title mb-4">Корзина</h1>
+    <partial name="_CartLines" model="Model.Vm" />
+}
+else
+{
+    <div class="row g-4 g-xl-5 cart-layout">
+        <div class="col-lg-7">
+            <h1 class="cart-heading">Ваш заказ:</h1>
+            <partial name="_CartLines" model="Model.Vm" />
+        </div>
+        <div class="col-lg-5">
+            <aside class="cart-aside">
+                @if (User?.Identity?.IsAuthenticated != true)
+                {
+                    <div class="cart-auth-box">
+                        Покупали ранее?
+                        <a href="#loginModal" data-bs-toggle="modal" data-bs-target="#loginModal">Авторизуйтесь</a>
+                        или
+                        <a href="#registerModal" data-bs-toggle="modal" data-bs-target="#registerModal">зарегистрируйтесь</a>
+                    </div>
+                }
+
+                <h2 class="cart-aside__title">Итого</h2>
+                <div class="cart-aside__row">
+                    <span>Товары (@Model.Vm.ItemCount)</span>
+                    <span>@Model.Vm.ItemsTotal.ToString("N0") ₽</span>
+                </div>
+                <div class="cart-aside__row cart-aside__row--muted">
+                    <span>Доставка</span>
+                    <span>от 290 ₽</span>
+                </div>
+                <div class="cart-aside__total">
+                    <span>Итоговая сумма:</span>
+                    <strong>@Model.Vm.ItemsTotal.ToString("N0") ₽</strong>
+                </div>
+                <a class="btn btn-primary cart-aside__cta w-100" asp-page="/Cart/Checkout">Оформить заказ</a>
+                <a class="cart-aside__back" asp-page="/Catalog/Index">← Продолжить покупки</a>
+            </aside>
+        </div>
+    </div>
+}
+</div>

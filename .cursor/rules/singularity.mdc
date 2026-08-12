@@ -1,0 +1,11 @@
+---
+alwaysApply: true
+---
+
+# Singularity (MCP)
+
+Задачи — в **Singularity**. MCP: `singularity` / `user-singularity`. Ресурсы: `singularity://tasks`, `singularity://kanban-statuses`, `singularity://notes` и др. Создание/смена статуса — **инструменты MCP** (перед вызовом смотреть схему).
+
+**Проект:** `projectId` — указать в настройках проекта (правило или .env). Статусы: Новые, В работе, Готово.
+
+Операции с задачами (список, выбор, статусы) → субагент **tasks** (`.cursor/agents/tasks.mdc`).

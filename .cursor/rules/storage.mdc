@@ -1,0 +1,8 @@
+---
+description: S3/MinIO
+alwaysApply: false
+---
+
+# Storage
+
+Скилл **storage**: IStorageService, presigned URLs.
