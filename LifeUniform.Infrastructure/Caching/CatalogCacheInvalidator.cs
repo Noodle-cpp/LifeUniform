@@ -14,6 +14,8 @@ public class CatalogCacheInvalidator : ICatalogCacheInvalidator
         // Home keys include optional gender suffix — clear known variants.
         _cache.Remove(CatalogCacheKeys.Categories);
         _cache.Remove(CatalogCacheKeys.HomePrefix + "all");
+        _cache.Remove(CatalogCacheKeys.HomePrefix + "Women");
+        _cache.Remove(CatalogCacheKeys.HomePrefix + "Men");
         _cache.Remove(CatalogCacheKeys.HomePrefix + "1");
         _cache.Remove(CatalogCacheKeys.HomePrefix + "2");
         _cache.Remove(CatalogCacheKeys.Popular);

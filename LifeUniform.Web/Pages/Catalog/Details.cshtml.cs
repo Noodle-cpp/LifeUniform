@@ -2,6 +2,7 @@ using FluentValidation;
 using LifeUniform.Application.Catalog.Dto;
 using LifeUniform.Application.Catalog.Queries;
 using LifeUniform.Application.Orders.Commands;
+using LifeUniform.Web.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -20,9 +21,12 @@ namespace LifeUniform.Web.Pages.Catalog
         public string? SelectedColor { get; private set; }
         public bool CartAdded { get; private set; }
 
-        public DetailsModel(IMediator mediator)
+        private readonly IFavoriteState _favorites;
+
+        public DetailsModel(IMediator mediator, IFavoriteState favorites)
         {
             _mediator = mediator;
+            _favorites = favorites;
         }
 
         public async Task<IActionResult> OnGetAsync(string slug, string? color = null)
@@ -33,6 +37,7 @@ namespace LifeUniform.Web.Pages.Catalog
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 Vm = await _mediator.Send(new GetProductDetailsQuery { Slug = slug, UserId = userId });
+                ApplyGuestFavorites(userId);
                 IsNotFound = false;
                 return Page();
             }
@@ -98,6 +103,17 @@ namespace LifeUniform.Web.Pages.Catalog
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             Vm = await _mediator.Send(new GetProductDetailsQuery { Slug = slug, UserId = userId });
+            ApplyGuestFavorites(userId);
+        }
+
+        private void ApplyGuestFavorites(string? userId)
+        {
+            if (!string.IsNullOrWhiteSpace(userId))
+                return;
+
+            var ids = _favorites.GetGuestIds();
+            Vm.IsFavorite = ids.Contains(Vm.Id);
+            _favorites.ApplyGuest(Vm.RelatedProducts);
         }
     }
 }

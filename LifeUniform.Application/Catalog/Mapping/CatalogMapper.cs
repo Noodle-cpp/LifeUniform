@@ -85,6 +85,18 @@ public static class CatalogMapper
         IsActive = c.IsActive
     };
 
+    public static string? ToSnippet(string? description, int maxLength = 90)
+    {
+        if (string.IsNullOrWhiteSpace(description))
+            return null;
+
+        var text = description.Trim().ReplaceLineEndings(" ");
+        while (text.Contains("  ", StringComparison.Ordinal))
+            text = text.Replace("  ", " ", StringComparison.Ordinal);
+
+        return text.Length <= maxLength ? text : text[..maxLength].TrimEnd() + "…";
+    }
+
     public static ProductCardDto ToProductCard(Product p) => new()
     {
         Id = p.Id,
@@ -96,7 +108,29 @@ public static class CatalogMapper
         Colors = p.ColorOptions
             .OrderBy(c => c.SortOrder)
             .Select(ToProductColor)
-            .ToList()
+            .ToList(),
+        Sizes = p.SizeOptions
+            .Where(so => so.Size is not null)
+            .OrderBy(so => so.Size.SortOrder)
+            .Select(so => new SizeCardDto { Id = so.Size.Id, Label = so.Size.Label, IsInStock = true })
+            .ToList(),
+        Snippet = ToSnippet(p.Description),
+        CategoryName = p.Category?.Name
+    };
+
+    public static ProductCardDto CloneCard(ProductCardDto p) => new()
+    {
+        Id = p.Id,
+        Name = p.Name,
+        Slug = p.Slug,
+        Price = p.Price,
+        DiscountPrice = p.DiscountPrice,
+        PreviewImageUrl = p.PreviewImageUrl,
+        Colors = p.Colors,
+        Sizes = p.Sizes,
+        Snippet = p.Snippet,
+        CategoryName = p.CategoryName,
+        IsFavorite = false
     };
 
     public static ProductDetailsDto ToProductDetails(Product p) => new()

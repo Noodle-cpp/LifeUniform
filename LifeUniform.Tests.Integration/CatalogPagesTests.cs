@@ -58,13 +58,19 @@ public class CatalogPagesTests : IClassFixture<CustomWebApplicationFactory>, IAs
     }
 
     [Fact]
-    public async Task Favorites_RequiresAuth()
+    public async Task CatalogSearch_ReturnsJson()
+    {
+        var response = await _client.GetAsync("/Catalog/Search?q=то");
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+        response.Content.Headers.ContentType?.MediaType.Should().Be("application/json");
+    }
+
+    [Fact]
+    public async Task Favorites_AllowsGuest()
     {
         var response = await _client.GetAsync("/Favorites");
 
-        response.StatusCode.Should().BeOneOf(
-            System.Net.HttpStatusCode.Redirect,
-            System.Net.HttpStatusCode.Unauthorized,
-            System.Net.HttpStatusCode.Found);
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
     }
 }

@@ -1,0 +1,40 @@
+@model IReadOnlyList<LifeUniform.Application.Marketing.Dto.ClientPhotoDto>
+
+@if (Model.Count > 0)
+{
+    <section class="client-photos" data-rail data-rail-auto>
+        <div class="client-photos__head">
+            <h2 class="section-title mb-0">Фото наших клиентов</h2>
+            <div class="client-photos__nav">
+                <button type="button" class="product-rail__nav product-rail__nav--prev" aria-label="Назад">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <button type="button" class="product-rail__nav product-rail__nav--next" aria-label="Вперёд">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="product-rail__track">
+            @foreach (var photo in Model)
+            {
+                <article class="client-photo-card">
+                    <div class="client-photo-card__media media-frame is-loading">
+                        <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
+                        <img src="@photo.ImageUrl" alt="@photo.Title" class="js-lazy-img" loading="lazy" />
+                    </div>
+                    <div class="client-photo-card__stars" aria-label="@photo.Rating из 5">
+                        @for (var i = 1; i <= 5; i++)
+                        {
+                            <i class="bi @(i <= photo.Rating ? "bi-star-fill" : "bi-star")"></i>
+                        }
+                    </div>
+                    <div class="client-photo-card__title">@photo.Title</div>
+                    @if (!string.IsNullOrWhiteSpace(photo.ReviewText))
+                    {
+                        <p class="client-photo-card__text">@photo.ReviewText</p>
+                    }
+                </article>
+            }
+        </div>
+    </section>
+}

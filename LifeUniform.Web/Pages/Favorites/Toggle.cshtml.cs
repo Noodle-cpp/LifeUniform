@@ -1,6 +1,5 @@
-using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
+using LifeUniform.Domain.Catalog;
+using LifeUniform.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,37 +7,36 @@ namespace LifeUniform.Web.Pages.Favorites;
 
 public class ToggleModel : PageModel
 {
-    private readonly LifeUniform.Domain.Catalog.ICatalogRepository _catalogRepository;
+    private readonly ICatalogRepository _catalogRepository;
+    private readonly IFavoriteState _favorites;
 
-    public ToggleModel(LifeUniform.Domain.Catalog.ICatalogRepository catalogRepository)
+    public ToggleModel(ICatalogRepository catalogRepository, IFavoriteState favorites)
     {
         _catalogRepository = catalogRepository;
+        _favorites = favorites;
     }
 
     [BindProperty]
     public string Slug { get; set; } = string.Empty;
 
+    [BindProperty]
+    public Guid? ProductId { get; set; }
+
     public async Task<IActionResult> OnPostAsync(string slug)
     {
         Slug = slug;
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrWhiteSpace(userId))
-        {
-            if (WantsJson())
-                return new JsonResult(new { ok = false, requiresAuth = true }) { StatusCode = 401 };
-            return Challenge();
-        }
+        var productId = ProductId;
+        if (productId is null || productId == Guid.Empty)
+            productId = await _catalogRepository.GetProductIdBySlugAsync(Slug, HttpContext.RequestAborted);
 
-        var product = await _catalogRepository.GetProductBySlugAsync(Slug, HttpContext.RequestAborted);
-        if (product is null)
+        if (productId is null)
         {
             if (WantsJson())
                 return new JsonResult(new { ok = false, notFound = true }) { StatusCode = 404 };
             return RedirectToPage("/Catalog/Index");
         }
 
-        var isFavorite = await _catalogRepository.ToggleProductFavoriteAsync(
-            userId, product.Id, HttpContext.RequestAborted);
+        var isFavorite = await _favorites.ToggleAsync(productId.Value, HttpContext.RequestAborted);
 
         if (WantsJson())
             return new JsonResult(new { ok = true, isFavorite, slug = Slug });
@@ -64,4 +62,3 @@ public class ToggleModel : PageModel
             StringComparison.OrdinalIgnoreCase);
     }
 }
-

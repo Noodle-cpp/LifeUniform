@@ -10,6 +10,7 @@ public class GetCatalogProductsQuery : IRequest<CatalogProductsPageDto>
     public ProductGender? Gender { get; init; }
     public Guid? CategoryId { get; init; }
     public string? Search { get; init; }
+    public string? Color { get; init; }
     public int Page { get; init; } = 1;
     public int PageSize { get; init; } = 12;
     public string? UserId { get; init; }
@@ -26,6 +27,8 @@ public class CatalogProductsPageDto
     public ProductGender? Gender { get; set; }
     public Guid? CategoryId { get; set; }
     public string? Search { get; set; }
+    public string? Color { get; set; }
+    public IReadOnlyList<ProductColorDto> AvailableColors { get; set; } = Array.Empty<ProductColorDto>();
 }
 
 public class GetCatalogProductsHandler : IRequestHandler<GetCatalogProductsQuery, CatalogProductsPageDto>
@@ -44,11 +47,13 @@ public class GetCatalogProductsHandler : IRequestHandler<GetCatalogProductsQuery
             request.Gender,
             request.CategoryId,
             request.Search,
+            request.Color,
             skip,
             pageSize,
             cancellationToken);
 
         var categories = await _catalog.GetCategoriesAsync(request.Gender, cancellationToken);
+        var colors = await _catalog.GetDistinctColorsAsync(request.Gender, request.CategoryId, cancellationToken);
 
         IReadOnlyCollection<Guid> favoriteIds = Array.Empty<Guid>();
         if (!string.IsNullOrWhiteSpace(request.UserId))
@@ -71,7 +76,12 @@ public class GetCatalogProductsHandler : IRequestHandler<GetCatalogProductsQuery
             TotalCount = total,
             Gender = request.Gender,
             CategoryId = request.CategoryId,
-            Search = request.Search
+            Search = request.Search,
+            Color = request.Color,
+            AvailableColors = colors
+                .GroupBy(c => c.Hex + "|" + c.Name, StringComparer.OrdinalIgnoreCase)
+                .Select(g => CatalogMapper.ToProductColor(g.First()))
+                .ToList()
         };
     }
 }

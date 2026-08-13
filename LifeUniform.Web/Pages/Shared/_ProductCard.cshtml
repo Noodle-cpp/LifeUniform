@@ -1,20 +1,32 @@
 @model LifeUniform.Application.Catalog.Dto.ProductCardDto
+@{
+    var price = Model.DiscountPrice ?? Model.Price;
+    var discountPct = Model.DiscountPrice is decimal d && Model.Price > 0
+        ? (int)Math.Round((1 - d / Model.Price) * 100)
+        : (int?)null;
+}
 
 <div class="product-card h-100">
     <div class="product-card__media">
-        <a asp-page="/Catalog/Details" asp-route-slug="@Model.Slug" class="product-card__img-link">
-            <img class="js-product-card-img"
+        <a asp-page="/Catalog/Details" asp-route-slug="@Model.Slug" class="product-card__img-link media-frame is-loading">
+            <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
+            <img class="js-product-card-img js-lazy-img"
                  src="@Model.PreviewImageUrl"
                  data-default-src="@Model.PreviewImageUrl"
                  alt="@Model.Name"
                  loading="lazy"
                  @(Model.PreviewImageUrl.StartsWith("http", StringComparison.OrdinalIgnoreCase) ? "referrerpolicy=no-referrer" : null) />
         </a>
+        @if (discountPct is int pct && pct > 0)
+        {
+            <span class="product-card__discount">−<span class="js-count-up" data-value="@pct" data-suffix="%">0%</span></span>
+        }
         <form method="post"
               asp-page="/Favorites/Toggle"
               asp-route-slug="@Model.Slug"
               class="product-card__fav js-favorite-form"
               data-slug="@Model.Slug">
+            <input type="hidden" name="ProductId" value="@Model.Id" />
             <button type="submit"
                     class="btn btn-sm product-fav-btn js-favorite-btn @(Model.IsFavorite ? "is-active" : null)"
                     title="@(Model.IsFavorite ? "В избранном" : "В избранное")"
@@ -27,41 +39,44 @@
     </div>
     <div class="product-card__body">
         <div class="fw-semibold product-card__title">@Model.Name</div>
-        <div class="mt-2">
+        <div class="product-card__price">
             @if (Model.DiscountPrice != null)
             {
-                <div class="text-muted text-decoration-line-through small">@($"{Model.Price:0.##} руб.")</div>
-                <div class="fw-bold">@($"{Model.DiscountPrice:0.##} руб.")</div>
+                <span class="product-card__price-old">@($"{Model.Price:0.##} ₽")</span>
+                <span class="fw-bold"><span class="js-count-up" data-value="@Model.DiscountPrice.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-suffix=" ₽">0 ₽</span></span>
             }
             else
             {
-                <div class="fw-bold">@($"{Model.Price:0.##} руб.")</div>
+                <span class="fw-bold">@($"{price:0.##} ₽")</span>
             }
         </div>
-    </div>
-    <div class="product-card__footer">
         @if (Model.Colors.Count > 0)
         {
-            <div class="color-dots" aria-label="Цвета">
-                @foreach (var c in Model.Colors.Take(5))
+            <div class="color-dots mt-2" aria-label="Цвет">
+                @foreach (var c in Model.Colors.Take(8))
                 {
                     var hasImage = !string.IsNullOrWhiteSpace(c.ImageUrl);
-                    <a class="color-dot @(hasImage ? "js-color-preview" : null)"
-                       style="background:@c.Hex"
-                       title="@c.Name"
-                       asp-page="/Catalog/Details"
-                       asp-route-slug="@Model.Slug"
-                       asp-route-color="@c.Name"
-                       aria-label="Цвет @c.Name"
-                       data-image="@(hasImage ? c.ImageUrl : null)"></a>
+                    <button type="button"
+                            class="color-dot js-color-preview"
+                            style="background:@c.Hex"
+                            title="@c.Name"
+                            aria-label="Цвет @c.Name"
+                            data-image="@(hasImage ? c.ImageUrl : null)"></button>
                 }
             </div>
         }
-        else
+        @if (Model.Sizes.Count > 0)
         {
-            <div></div>
+            <div class="size-pills mt-2" aria-label="Размер">
+                <div class="size-pills__label">Размер</div>
+                <div class="size-pills__row">
+                    @foreach (var s in Model.Sizes)
+                    {
+                        <button type="button" class="size-pill js-size-pill">@s.Label</button>
+                    }
+                </div>
+            </div>
         }
-        <a class="btn btn-sm btn-outline-primary" asp-page="/Catalog/Details" asp-route-slug="@Model.Slug">Смотреть</a>
+        <a class="btn btn-primary product-card__more" asp-page="/Catalog/Details" asp-route-slug="@Model.Slug">Подробнее</a>
     </div>
 </div>
-

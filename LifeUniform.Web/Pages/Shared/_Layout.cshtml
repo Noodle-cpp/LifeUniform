@@ -19,109 +19,122 @@
 </head>
 <body>
     <header class="site-header sticky-top">
-        <nav class="navbar navbar-expand-lg navbar-light site-nav border-bottom">
-            <div class="container">
+        <nav class="site-nav">
+            <div class="site-wrap site-nav__inner">
                 <a class="navbar-brand fw-bold" asp-area="" asp-page="/Index">Life Uniforms</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-                        aria-controls="mainNav" aria-expanded="false" aria-label="Меню">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="mainNav">
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Catalog/Index">Каталог</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Catalog/Index" asp-route-gender="1">Женское</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Catalog/Index" asp-route-gender="2">Мужское</a>
-                        </li>
-                    </ul>
 
-                    <ul class="navbar-nav align-items-lg-center gap-lg-1 nav-icons">
-                        <li class="nav-item">
-                            <a class="nav-link nav-icon" asp-page="/Catalog/Index" title="Поиск" aria-label="Поиск">
-                                <i class="bi bi-search" aria-hidden="true"></i>
-                                <span class="nav-icon__label">Поиск</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-icon" asp-page="/Favorites/Index" title="Избранное" aria-label="Избранное">
-                                <i class="bi bi-heart" aria-hidden="true"></i>
-                                <span class="nav-icon__label">Избранное</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-icon nav-cart"
-                               asp-page="/Cart/Index"
-                               title="Корзина"
-                               aria-label="@(cartQty > 0 ? $"Корзина, {cartQty}" : "Корзина")">
-                                <i class="bi bi-bag" aria-hidden="true"></i>
-                                <span class="nav-icon__label">Корзина</span>
-                                @if (cartQty > 0)
-                                {
-                                    <span class="nav-cart__count">@(cartQty > 99 ? "99+" : cartQty.ToString())</span>
-                                }
-                            </a>
-                        </li>
-                        @if (User?.Identity?.IsAuthenticated == true)
+                <ul class="site-nav__links">
+                    <li>
+                        <a asp-area="" asp-page="/Catalog/Index">Каталог</a>
+                    </li>
+                    <li>
+                        <a asp-area="" asp-page="/Catalog/Index" asp-route-gender="1">Женское</a>
+                    </li>
+                    <li>
+                        <a asp-area="" asp-page="/Catalog/Index" asp-route-gender="2">Мужское</a>
+                    </li>
+                </ul>
+
+                <div class="site-nav__actions">
+                    <a class="nav-icon" asp-page="/Favorites/Index" title="Избранное" aria-label="Избранное">
+                        <i class="bi bi-heart" aria-hidden="true"></i>
+                    </a>
+                    <button type="button" class="nav-icon nav-icon--btn js-search-open" title="Поиск" aria-label="Поиск">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                    </button>
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="nav-icon" asp-page="/Account/Index" title="Кабинет" aria-label="Кабинет">
+                            <i class="bi bi-person" aria-hidden="true"></i>
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="nav-icon" href="#loginModal" data-bs-toggle="modal" data-bs-target="#loginModal" title="Вход" aria-label="Вход">
+                            <i class="bi bi-person" aria-hidden="true"></i>
+                        </a>
+                    }
+                    <a class="nav-icon nav-cart"
+                       asp-page="/Cart/Index"
+                       title="Корзина"
+                       aria-label="@(cartQty > 0 ? $"Корзина, {cartQty}" : "Корзина")">
+                        <i class="bi bi-bag" aria-hidden="true"></i>
+                        @if (cartQty > 0)
                         {
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Админ</a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Index">Главная</a></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Catalog/Index">Товары</a></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Orders/Index">Заказы</a></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Promotions/Index">Промокоды</a></li>
-                                        <li><a class="dropdown-item" asp-area="Admin" asp-page="/Offers/Index">Реклама</a></li>
-                                    </ul>
-                                </li>
-                            }
-                            <li class="nav-item">
-                                <a class="nav-link nav-icon" asp-page="/Account/Index" title="Кабинет" aria-label="Кабинет">
-                                    <i class="bi bi-person" aria-hidden="true"></i>
-                                    <span class="nav-icon__label">Кабинет</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/">
-                                    <button type="submit" class="nav-link nav-icon btn btn-link" title="Выйти" aria-label="Выйти">
-                                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
-                                        <span class="nav-icon__label">Выйти</span>
-                                    </button>
-                                </form>
-                            </li>
+                            <span class="nav-cart__count">@(cartQty > 99 ? "99+" : cartQty.ToString())</span>
                         }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link nav-icon" href="#loginModal" data-bs-toggle="modal" data-bs-target="#loginModal" title="Вход" aria-label="Вход">
-                                    <i class="bi bi-box-arrow-in-right" aria-hidden="true"></i>
-                                    <span class="nav-icon__label">Вход</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link nav-icon" href="#registerModal" data-bs-toggle="modal" data-bs-target="#registerModal" title="Регистрация" aria-label="Регистрация">
-                                    <i class="bi bi-person-plus" aria-hidden="true"></i>
-                                    <span class="nav-icon__label">Регистрация</span>
-                                </a>
-                            </li>
-                        }
-                    </ul>
+                    </a>
+                    <button class="nav-icon nav-icon--btn d-lg-none"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#mainNav"
+                            aria-controls="mainNav"
+                            aria-expanded="false"
+                            aria-label="Меню">
+                        <i class="bi bi-list" aria-hidden="true"></i>
+                    </button>
+                    @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                    {
+                        <a class="nav-icon d-none d-lg-inline-flex" asp-area="Admin" asp-page="/Index" title="Админ" aria-label="Админ">
+                            <i class="bi bi-gear" aria-hidden="true"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="collapse site-nav__mobile" id="mainNav">
+                <div class="site-wrap py-2">
+                    <a class="site-nav__mobile-link" asp-area="" asp-page="/Catalog/Index">Каталог</a>
+                    <a class="site-nav__mobile-link" asp-area="" asp-page="/Catalog/Index" asp-route-gender="1">Женское</a>
+                    <a class="site-nav__mobile-link" asp-area="" asp-page="/Catalog/Index" asp-route-gender="2">Мужское</a>
+                    <a class="site-nav__mobile-link" asp-area="" asp-page="/Delivery">Доставка</a>
+                    @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
+                    {
+                        <a class="site-nav__mobile-link" asp-area="Admin" asp-page="/Index">Админ</a>
+                    }
                 </div>
             </div>
         </nav>
     </header>
 
-    <main role="main" class="pb-5">
+    <div id="searchOverlay" class="search-overlay" hidden>
+        <div class="search-overlay__panel">
+            <div class="search-overlay__top">
+                <form class="search-overlay__form" id="searchOverlayForm" action="/Catalog/Search" method="get">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input type="search" id="searchOverlayInput" name="q" placeholder="Поиск" autocomplete="off" />
+                    <button type="button" class="search-overlay__clear" id="searchOverlayClear" aria-label="Очистить" hidden>
+                        <i class="bi bi-x" aria-hidden="true"></i>
+                    </button>
+                </form>
+                <button type="button" class="search-overlay__close js-search-close" aria-label="Закрыть поиск">
+                    <i class="bi bi-x-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="search-overlay__progress" id="searchOverlayProgress" hidden>
+                <span class="search-overlay__progress-bar"></span>
+            </div>
+        </div>
+        <div class="search-overlay__body">
+            <div class="search-overlay__inner">
+                <div id="searchOverlayMeta" class="search-overlay__meta"></div>
+                <div id="searchOverlayEmpty" class="search-overlay__empty" hidden>
+                    <div class="search-overlay__empty-face" aria-hidden="true">☹️</div>
+                    <div class="search-overlay__empty-title">Товары не найдены</div>
+                    <div class="search-overlay__empty-text">Попробуйте изменить запрос или проверить написание</div>
+                </div>
+                <div id="searchOverlayResults" class="search-overlay__grid"></div>
+                <button type="button" id="searchOverlayMore" class="btn btn-outline-primary search-overlay__more" hidden>Показать ещё</button>
+                <nav id="searchOverlayPager" class="search-overlay__pager" aria-label="Страницы поиска"></nav>
+            </div>
+        </div>
+    </div>
+
+    <main role="main">
         @RenderBody()
     </main>
 
     <footer class="site-footer mt-auto">
-        <div class="container py-5">
+        <div class="site-wrap py-5">
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="fw-bold mb-2 text-uppercase" style="letter-spacing:0.06em">Life Uniforms</div>

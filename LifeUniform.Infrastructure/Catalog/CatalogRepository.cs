@@ -27,13 +27,20 @@ public class CatalogRepository : ICatalogRepository
             .ToListAsync(cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Product>> GetPopularProductsAsync(int take, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<Product>> GetPopularProductsAsync(int take, CancellationToken cancellationToken, ProductGender? gender = null)
     {
-        return await _db.Products
+        var query = _db.Products
             .AsNoTracking()
-            .Where(p => p.IsActive)
+            .Where(p => p.IsActive);
+
+        if (gender is not null)
+            query = query.Where(p => p.Gender == gender.Value);
+
+        return await query
             .Include(p => p.Images)
             .Include(p => p.ColorOptions)
+            .Include(p => p.SizeOptions)
+                .ThenInclude(so => so.Size)
             .OrderByDescending(p => p.PopularityRank)
             .Take(take)
             .ToListAsync(cancellationToken);
@@ -49,6 +56,8 @@ public class CatalogRepository : ICatalogRepository
             .Where(p => ids.Contains(p.Id))
             .Include(p => p.Images)
             .Include(p => p.ColorOptions)
+            .Include(p => p.SizeOptions)
+                .ThenInclude(so => so.Size)
             .ToListAsync(cancellationToken);
     }
 
@@ -63,6 +72,15 @@ public class CatalogRepository : ICatalogRepository
                 .ThenInclude(so => so.Size)
             .Include(p => p.ColorSizeStocks)
             .Include(p => p.Category)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<Guid?> GetProductIdBySlugAsync(string slug, CancellationToken cancellationToken)
+    {
+        return await _db.Products
+            .AsNoTracking()
+            .Where(p => p.IsActive && p.Slug == slug)
+            .Select(p => (Guid?)p.Id)
             .FirstOrDefaultAsync(cancellationToken);
     }
 
@@ -413,6 +431,7 @@ public class CatalogRepository : ICatalogRepository
         ProductGender? gender,
         Guid? categoryId,
         string? search,
+        string? color,
         int skip,
         int take,
         CancellationToken cancellationToken)
@@ -427,25 +446,93 @@ public class CatalogRepository : ICatalogRepository
         if (categoryId is not null)
             query = query.Where(p => p.CategoryId == categoryId.Value);
 
+        string? searchLower = null;
         if (!string.IsNullOrWhiteSpace(search))
         {
-            var s = search.Trim();
-            query = query.Where(p =>
-                p.Name.Contains(s) ||
-                (p.Description != null && p.Description.Contains(s)));
+            var term = search.Trim();
+            searchLower = term.ToLowerInvariant();
+            var useInMemory = string.Equals(
+                _db.Database.ProviderName,
+                "Microsoft.EntityFrameworkCore.InMemory",
+                StringComparison.Ordinal);
+
+            // Contains by name / short name / sku / category; description only for longer queries
+            if (useInMemory)
+            {
+                query = query.Where(p =>
+                    p.Name.ToLower().Contains(searchLower)
+                    || (p.ShortName != null && p.ShortName.ToLower().Contains(searchLower))
+                    || (p.Sku != null && p.Sku.ToLower().Contains(searchLower))
+                    || (p.Category != null && p.Category.Name.ToLower().Contains(searchLower))
+                    || (term.Length >= 3 && p.Description != null && p.Description.ToLower().Contains(searchLower)));
+            }
+            else
+            {
+                var pattern = $"%{EscapeLikePattern(term)}%";
+                query = query.Where(p =>
+                    EF.Functions.ILike(p.Name, pattern)
+                    || (p.ShortName != null && EF.Functions.ILike(p.ShortName, pattern))
+                    || (p.Sku != null && EF.Functions.ILike(p.Sku, pattern))
+                    || (p.Category != null && EF.Functions.ILike(p.Category.Name, pattern))
+                    || (term.Length >= 3 && p.Description != null && EF.Functions.ILike(p.Description, pattern)));
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(color))
+        {
+            var c = color.Trim();
+            query = query.Where(p => p.ColorOptions.Any(o => o.Name == c || o.Hex == c));
         }
 
         var total = await query.CountAsync(cancellationToken);
 
-        var items = await query
+        var ordered = searchLower is null
+            ? query.OrderByDescending(p => p.PopularityRank)
+            : query
+                .OrderByDescending(p => p.Name.ToLower().Contains(searchLower))
+                .ThenByDescending(p => p.ShortName != null && p.ShortName.ToLower().Contains(searchLower))
+                .ThenByDescending(p => p.Category != null && p.Category.Name.ToLower().Contains(searchLower))
+                .ThenByDescending(p => p.PopularityRank);
+
+        var items = await ordered
             .Include(p => p.Images)
             .Include(p => p.ColorOptions)
-            .OrderByDescending(p => p.PopularityRank)
+            .Include(p => p.Category)
+            .Include(p => p.SizeOptions)
+                .ThenInclude(so => so.Size)
             .Skip(skip)
             .Take(take)
             .ToListAsync(cancellationToken);
 
         return (items, total);
+    }
+
+    private static string EscapeLikePattern(string value) =>
+        value
+            .Replace("\\", "\\\\", StringComparison.Ordinal)
+            .Replace("%", "\\%", StringComparison.Ordinal)
+            .Replace("_", "\\_", StringComparison.Ordinal);
+
+    public async Task<IReadOnlyList<ProductColorOption>> GetDistinctColorsAsync(
+        ProductGender? gender,
+        Guid? categoryId,
+        CancellationToken cancellationToken)
+    {
+        var query = _db.Products
+            .AsNoTracking()
+            .Where(p => p.IsActive);
+
+        if (gender is not null)
+            query = query.Where(p => p.Gender == gender.Value);
+
+        if (categoryId is not null)
+            query = query.Where(p => p.CategoryId == categoryId.Value);
+
+        return await query
+            .SelectMany(p => p.ColorOptions)
+            .OrderBy(c => c.SortOrder)
+            .ThenBy(c => c.Name)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<IReadOnlyList<Product>> GetRelatedProductsAsync(
@@ -459,6 +546,8 @@ public class CatalogRepository : ICatalogRepository
             .Where(p => p.IsActive && p.CategoryId == categoryId && p.Id != productId)
             .Include(p => p.Images)
             .Include(p => p.ColorOptions)
+            .Include(p => p.SizeOptions)
+                .ThenInclude(so => so.Size)
             .OrderByDescending(p => p.PopularityRank)
             .Take(take)
             .ToListAsync(cancellationToken);

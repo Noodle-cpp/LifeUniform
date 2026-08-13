@@ -1,0 +1,37 @@
+@model IReadOnlyList<LifeUniform.Application.Catalog.Dto.ProductCardDto>
+@{
+    var title = ViewData["RailTitle"] as string ?? "";
+    var cta = ViewData["RailCta"] as string;
+    var gender = ViewData["RailGender"] as int?;
+}
+
+@if (Model.Count > 0)
+{
+    <section class="product-rail-section">
+        <div class="product-rail-section__head">
+            <h2 class="section-title mb-0">@title</h2>
+            @if (!string.IsNullOrWhiteSpace(cta))
+            {
+                <a class="section-link product-rail-section__cta"
+                   asp-page="/Catalog/Index"
+                   asp-route-gender="@gender">@cta <span aria-hidden="true">→</span></a>
+            }
+        </div>
+        <div class="product-rail" data-rail data-rail-auto>
+            <button type="button" class="product-rail__nav product-rail__nav--prev" aria-label="Назад">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="product-rail__track">
+                @foreach (var p in Model)
+                {
+                    <div class="product-rail__item">
+                        <partial name="_ProductCard" model="p" />
+                    </div>
+                }
+            </div>
+            <button type="button" class="product-rail__nav product-rail__nav--next" aria-label="Вперёд">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </section>
+}

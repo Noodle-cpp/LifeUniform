@@ -58,6 +58,10 @@
                asp-area="Admin" asp-page="/Offers/Index">
                 <i class="bi bi-image"></i> Реклама
             </a>
+            <a class="admin-nav__link @(currentPage.StartsWith("/ClientPhotos", StringComparison.OrdinalIgnoreCase) ? "is-active" : null)"
+               asp-area="Admin" asp-page="/ClientPhotos/Index">
+                <i class="bi bi-camera"></i> Фото клиентов
+            </a>
         </nav>
 
         <div class="admin-sidebar__foot">

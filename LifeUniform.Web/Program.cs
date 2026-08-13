@@ -65,6 +65,7 @@ public class Program
         });
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<LifeUniform.Domain.Cart.ICartService, LifeUniform.Web.Services.SessionCartService>();
+        builder.Services.AddScoped<LifeUniform.Web.Services.IFavoriteState, LifeUniform.Web.Services.SessionFavoriteService>();
 
         // CQRS + validation pipeline
         builder.Services.AddMemoryCache();
@@ -79,6 +80,7 @@ public class Program
         builder.Services.AddScoped<LifeUniform.Domain.Orders.IOrderRepository, LifeUniform.Infrastructure.Orders.OrderRepository>();
         builder.Services.AddScoped<IPromotionRepository, PromotionRepository>();
         builder.Services.AddScoped<LifeUniform.Domain.Marketing.IPromoOfferRepository, LifeUniform.Infrastructure.Marketing.PromoOfferRepository>();
+        builder.Services.AddScoped<LifeUniform.Domain.Marketing.IClientPhotoRepository, LifeUniform.Infrastructure.Marketing.ClientPhotoRepository>();
         builder.Services.AddScoped<IImageStorage, DiskImageStorage>();
         builder.Services.AddScoped<ICatalogCacheInvalidator, CatalogCacheInvalidator>();
         builder.Services.AddScoped<IPaymentFacade, StubPaymentFacade>();

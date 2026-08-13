@@ -2,25 +2,35 @@
 @model IndexModel
 @{
     ViewData["Title"] = "Life Uniform — медицинская одежда";
+    const string heroWords = "удобная,стильная,лёгкая,практичная,комфортная,современная,изящная,дышащая";
 }
 
 <section class="hero-banner">
     <div class="hero-banner__stage">
-        <img src="~/images/hero-banner.png" alt="Life Uniforms — медицинская одежда" class="hero-banner__img" loading="eager" asp-append-version="true" />
+        <div class="media-frame media-frame--hero is-loading">
+            <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
+            <img src="~/images/hero-banner.png"
+                 alt="Life Uniforms — медицинская одежда"
+                 class="hero-banner__img js-lazy-img"
+                 loading="eager"
+                 asp-append-version="true" />
+        </div>
         <div class="hero-banner__overlay">
-            <div class="container hero-banner__content">
-                <p class="brand-eyebrow mb-2">Life Uniforms</p>
-                <h1 class="hero-banner__title">Медицинская одежда премиум класса</h1>
-                <p class="hero-banner__lead">Стандарт качества современной медицинской формы</p>
-                <div class="hero-banner__actions d-flex flex-wrap gap-2 mt-3">
+            <div class="site-wrap hero-banner__content">
+                <p class="brand-eyebrow mb-2 js-reveal">Life Uniforms</p>
+                <h1 class="hero-banner__title" aria-label="удобная медицинская одежда">
+                    <span class="js-typewriter" data-words="@heroWords"></span><span class="hero-banner__title-static"> медицинская одежда</span>
+                </h1>
+                <p class="hero-banner__lead js-reveal" data-reveal-delay="120">Стандарт качества современной медицинской формы</p>
+                <div class="hero-banner__actions d-flex flex-wrap gap-2 mt-3 js-reveal" data-reveal-delay="240">
                     <a class="btn btn-outline-light btn-lg" asp-page="/Catalog/Index" asp-route-gender="1">Для женщин</a>
                     <a class="btn btn-outline-light btn-lg" asp-page="/Catalog/Index" asp-route-gender="2">Для мужчин</a>
                 </div>
             </div>
         </div>
     </div>
-    <div class="hero-banner__features">
-        <div class="container">
+    <div class="hero-banner__features js-reveal" data-reveal-delay="360">
+        <div class="site-wrap">
             <div class="hero-features-bar">
                 <div class="hero-feature">
                     <i class="bi bi-gem"></i>
@@ -48,135 +58,90 @@
     </div>
 </section>
 
-<div class="container py-5">
+<div class="site-wrap py-5">
+    @{
+        ViewData["RailTitle"] = "Для женщин";
+        ViewData["RailCta"] = "Все товары для женщин";
+        ViewData["RailGender"] = 1;
+    }
+    <div class="js-reveal">
+        <partial name="_ProductRail" model="Model.Vm.WomenProducts" />
+    </div>
+
     @if (Model.Vm.PromoOffers.Count > 0)
     {
-    <section class="mb-5">
-            <div class="d-flex align-items-end justify-content-between mb-3">
-                <h2 class="section-title">Спецпредложения</h2>
+        <section class="promo-rail-section js-reveal" data-rail data-rail-auto>
+            <div class="product-rail-section__head">
+                <h2 class="section-title mb-0">Спецпредложения</h2>
+                <div class="client-photos__nav">
+                    <button type="button" class="product-rail__nav product-rail__nav--prev" aria-label="Назад">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button type="button" class="product-rail__nav product-rail__nav--next" aria-label="Вперёд">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
             </div>
-            <div class="row g-3">
+            <div class="product-rail__track">
                 @foreach (var offer in Model.Vm.PromoOffers)
                 {
-                    <div class="col-md-6 col-lg-4">
-                        <a class="promo-card" href="@(offer.LinkUrl ?? "/Catalog")">
-                            <div class="promo-card__media">
-                                <img src="@offer.ImageUrl" alt="@offer.Title" loading="lazy" />
-                                @if (!string.IsNullOrWhiteSpace(offer.Badge))
-                                {
-                                    <span class="promo-card__badge">@offer.Badge</span>
-                                }
-                            </div>
-                            <div class="promo-card__body">
-                                <div class="fw-bold">@offer.Title</div>
-                                @if (!string.IsNullOrWhiteSpace(offer.Subtitle))
-                                {
-                                    <div class="small text-muted">@offer.Subtitle</div>
-                                }
-                                <div class="mt-2 d-flex align-items-baseline gap-2">
+                    var discountPct = offer.Price is decimal p && offer.OldPrice is decimal o && o > p
+                        ? (int)Math.Round((1 - p / o) * 100)
+                        : (int?)null;
+                    <a class="promo-slide" href="@(offer.LinkUrl ?? "/Catalog")">
+                        <span class="media-frame media-frame--fill is-loading">
+                            <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
+                            <img src="@offer.ImageUrl" alt="@offer.Title" class="js-lazy-img" loading="lazy" />
+                        </span>
+                        <span class="promo-slide__scrim"></span>
+                        <span class="promo-slide__caption">
+                            @if (!string.IsNullOrWhiteSpace(offer.Badge))
+                            {
+                                <span class="promo-slide__badge">@offer.Badge</span>
+                            }
+                            else if (discountPct is int pct && pct > 0)
+                            {
+                                <span class="promo-slide__badge">−<span class="js-count-up" data-value="@pct" data-suffix="%">0%</span></span>
+                            }
+                            <span class="promo-slide__title">@offer.Title</span>
+                            @if (!string.IsNullOrWhiteSpace(offer.Subtitle))
+                            {
+                                <span class="promo-slide__sub">@offer.Subtitle</span>
+                            }
+                            @if (offer.Price is not null || offer.OldPrice is not null)
+                            {
+                                <span class="promo-slide__price">
                                     @if (offer.Price is not null)
                                     {
-                                        <span class="fw-bold">@offer.Price.Value.ToString("0.##") руб.</span>
+                                        <strong><span class="js-count-up" data-value="@offer.Price.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-suffix=" ₽">0 ₽</span></strong>
                                     }
                                     @if (offer.OldPrice is not null)
                                     {
-                                        <span class="text-muted text-decoration-line-through small">@offer.OldPrice.Value.ToString("0.##") руб.</span>
+                                        <s>@offer.OldPrice.Value.ToString("0.##") ₽</s>
                                     }
-                                </div>
-                                <span class="btn btn-sm btn-primary mt-3">@(offer.LinkText ?? "Подробнее")</span>
-                            </div>
-                        </a>
-                    </div>
+                                </span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(offer.LinkText))
+                            {
+                                <span class="promo-slide__cta">@offer.LinkText</span>
+                            }
+                        </span>
+                    </a>
                 }
             </div>
         </section>
     }
 
     @{
-        var womenCategories = Model.Vm.Categories.Where(c => c.Gender == 1).ToList();
-        var menCategories = Model.Vm.Categories.Where(c => c.Gender == 2).ToList();
+        ViewData["RailTitle"] = "Для мужчин";
+        ViewData["RailCta"] = "Все товары для мужчин";
+        ViewData["RailGender"] = 2;
     }
+    <div class="js-reveal">
+        <partial name="_ProductRail" model="Model.Vm.MenProducts" />
+    </div>
 
-    <section class="mb-5 gender-shop">
-        <div class="row g-4">
-            <div class="col-lg-6">
-                <div class="gender-shop__block gender-shop__block--women">
-                    <div class="gender-shop__head">
-                        <h2 class="gender-shop__title">Женщинам</h2>
-                        <a class="section-link" asp-page="/Catalog/Index" asp-route-gender="1">Каталог →</a>
-                    </div>
-                    <a class="collection-banner" asp-page="/Catalog/Index" asp-route-gender="1">
-                        <img src="~/images/women-collection.png" alt="Женская коллекция" loading="lazy" asp-append-version="true" />
-                        <span class="collection-banner__label">Смотреть коллекцию <span aria-hidden="true">→</span></span>
-                    </a>
-                    @if (womenCategories.Count > 0)
-                    {
-                        <div class="gender-shop__cats">
-                            <div class="gender-shop__cats-label">Категории</div>
-                            <div class="row g-2">
-                                @foreach (var c in womenCategories)
-                                {
-                                    <div class="col-6">
-                                        <a class="category-tile category-tile--compact h-100"
-                                           asp-page="/Catalog/Index"
-                                           asp-route-categoryId="@c.Id"
-                                           asp-route-gender="@c.Gender">
-                                            <div class="fw-semibold">@c.Name</div>
-                                        </a>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <div class="col-lg-6">
-                <div class="gender-shop__block gender-shop__block--men">
-                    <div class="gender-shop__head">
-                        <h2 class="gender-shop__title">Мужчинам</h2>
-                        <a class="section-link" asp-page="/Catalog/Index" asp-route-gender="2">Каталог →</a>
-                    </div>
-                    <a class="collection-banner" asp-page="/Catalog/Index" asp-route-gender="2">
-                        <img src="~/images/men-collection.png" alt="Мужская коллекция" loading="lazy" asp-append-version="true" />
-                        <span class="collection-banner__label">Смотреть коллекцию <span aria-hidden="true">→</span></span>
-                    </a>
-                    @if (menCategories.Count > 0)
-                    {
-                        <div class="gender-shop__cats">
-                            <div class="gender-shop__cats-label">Категории</div>
-                            <div class="row g-2">
-                                @foreach (var c in menCategories)
-                                {
-                                    <div class="col-6">
-                                        <a class="category-tile category-tile--compact h-100"
-                                           asp-page="/Catalog/Index"
-                                           asp-route-categoryId="@c.Id"
-                                           asp-route-gender="@c.Gender">
-                                            <div class="fw-semibold">@c.Name</div>
-                                        </a>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="mb-2">
-        <div class="d-flex align-items-end justify-content-between mb-3">
-            <h2 class="section-title">Популярные товары</h2>
-            <a asp-page="/Catalog/Index" class="section-link">Весь каталог →</a>
-        </div>
-        <div class="row g-3">
-            @foreach (var p in Model.Vm.PopularProducts)
-            {
-                <div class="col-6 col-md-4 col-lg-3">
-                    <partial name="_ProductCard" model="p" />
-                </div>
-            }
-        </div>
-    </section>
+    <div class="js-reveal">
+        <partial name="_ClientPhotos" model="Model.Vm.ClientPhotos" />
+    </div>
 </div>

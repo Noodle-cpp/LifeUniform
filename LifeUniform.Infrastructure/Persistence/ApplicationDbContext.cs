@@ -24,6 +24,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
     public DbSet<PromotionCode> PromotionCodes => Set<PromotionCode>();
     public DbSet<PromoOffer> PromoOffers => Set<PromoOffer>();
+    public DbSet<ClientPhoto> ClientPhotos => Set<ClientPhoto>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -123,6 +124,15 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
             b.Property(x => x.LinkText).HasMaxLength(100);
             b.Property(x => x.Price).HasPrecision(18, 2);
             b.Property(x => x.OldPrice).HasPrecision(18, 2);
+            b.HasIndex(x => new { x.IsActive, x.SortOrder });
+        });
+
+        builder.Entity<ClientPhoto>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.Property(x => x.ImageUrl).HasMaxLength(500).IsRequired();
+            b.Property(x => x.Title).HasMaxLength(200).IsRequired();
+            b.Property(x => x.ReviewText).HasMaxLength(1000);
             b.HasIndex(x => new { x.IsActive, x.SortOrder });
         });
 

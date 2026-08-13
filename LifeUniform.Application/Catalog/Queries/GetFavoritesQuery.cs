@@ -8,6 +8,7 @@ namespace LifeUniform.Application.Catalog.Queries;
 public class GetFavoritesQuery : IRequest<IReadOnlyList<ProductCardDto>>
 {
     public string UserId { get; init; } = string.Empty;
+    public IReadOnlyList<Guid>? ProductIds { get; init; }
 }
 
 public class GetFavoritesHandler : IRequestHandler<GetFavoritesQuery, IReadOnlyList<ProductCardDto>>
@@ -18,10 +19,19 @@ public class GetFavoritesHandler : IRequestHandler<GetFavoritesQuery, IReadOnlyL
 
     public async Task<IReadOnlyList<ProductCardDto>> Handle(GetFavoritesQuery request, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(request.UserId))
-            return Array.Empty<ProductCardDto>();
+        IReadOnlyList<Guid> ids;
+        if (request.ProductIds is not null)
+        {
+            ids = request.ProductIds;
+        }
+        else
+        {
+            if (string.IsNullOrWhiteSpace(request.UserId))
+                return Array.Empty<ProductCardDto>();
 
-        var ids = await _catalog.GetFavoriteProductIdsAsync(request.UserId, cancellationToken);
+            ids = (await _catalog.GetFavoriteProductIdsAsync(request.UserId, cancellationToken)).ToList();
+        }
+
         if (ids.Count == 0)
             return Array.Empty<ProductCardDto>();
 

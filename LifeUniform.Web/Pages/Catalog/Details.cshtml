@@ -117,7 +117,7 @@ else
                 <div class="pdp-price-row">
                     @if (Model.Vm.DiscountPrice is decimal sale)
                     {
-                        <span class="pdp-price">@sale.ToString("N0") ₽</span>
+                        <span class="pdp-price"><span class="js-count-up" data-value="@sale.ToString(System.Globalization.CultureInfo.InvariantCulture)" data-suffix=" ₽">0 ₽</span></span>
                         <span class="pdp-price-old">@Model.Vm.Price.ToString("N0") ₽</span>
                         @if (Model.Vm.SavingsAmount is decimal save)
                         {
@@ -211,6 +211,7 @@ else
                       asp-route-slug="@Model.Vm.Slug"
                       class="mb-3 js-favorite-form"
                       data-slug="@Model.Vm.Slug">
+                    <input type="hidden" name="ProductId" value="@Model.Vm.Id" />
                     <button type="submit"
                             class="btn pdp-btn-fav w-100 js-favorite-btn @(Model.Vm.IsFavorite ? "is-active" : null)"
                             aria-pressed="@(Model.Vm.IsFavorite ? "true" : "false")"

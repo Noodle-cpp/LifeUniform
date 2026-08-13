@@ -4,12 +4,13 @@ public interface ICatalogRepository
 {
     Task<IReadOnlyList<Category>> GetCategoriesAsync(ProductGender? gender, CancellationToken cancellationToken);
 
-    Task<IReadOnlyList<Product>> GetPopularProductsAsync(int take, CancellationToken cancellationToken);
+    Task<IReadOnlyList<Product>> GetPopularProductsAsync(int take, CancellationToken cancellationToken, ProductGender? gender = null);
 
     Task<IReadOnlyList<Product>> GetProductsByIdsAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken);
 
     Task<Product?> GetProductBySlugAsync(string slug, CancellationToken cancellationToken);
 
+    Task<Guid?> GetProductIdBySlugAsync(string slug, CancellationToken cancellationToken);
 
     Task<Product?> GetProductWithSizesBySlugAsync(string slug, CancellationToken cancellationToken);
 
@@ -63,8 +64,14 @@ public interface ICatalogRepository
         ProductGender? gender,
         Guid? categoryId,
         string? search,
+        string? color,
         int skip,
         int take,
+        CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<ProductColorOption>> GetDistinctColorsAsync(
+        ProductGender? gender,
+        Guid? categoryId,
         CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Product>> GetRelatedProductsAsync(
