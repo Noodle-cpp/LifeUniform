@@ -1,0 +1,74 @@
+@model LifeUniform.Application.Catalog.Dto.NavMenuDto
+@using LifeUniform.Domain.Catalog
+
+<ul class="site-nav__links">
+    <li>
+        <a asp-area="" asp-page="/Catalog/Index">Каталог</a>
+    </li>
+    <li class="site-nav__item @(Model.Women.Count > 0 ? "site-nav__item--drop" : null)">
+        @if (Model.Women.Count > 0)
+        {
+            <button type="button"
+                    class="site-nav__trigger js-nav-drop-btn"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    aria-controls="navDropWomen">
+                Женское
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <div class="site-nav__dropdown js-nav-drop" id="navDropWomen" role="menu">
+                <div class="site-wrap site-nav__dropdown-inner">
+                    <a role="menuitem"
+                       asp-area=""
+                       asp-page="/Catalog/Index"
+                       asp-route-gender="@((int)ProductGender.Women)">Все модели</a>
+                    @foreach (var c in Model.Women)
+                    {
+                        <a role="menuitem"
+                           asp-area=""
+                           asp-page="/Catalog/Index"
+                           asp-route-gender="@((int)ProductGender.Women)"
+                           asp-route-categoryId="@c.Id">@c.Name</a>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <a asp-area="" asp-page="/Catalog/Index" asp-route-gender="@((int)ProductGender.Women)">Женское</a>
+        }
+    </li>
+    <li class="site-nav__item @(Model.Men.Count > 0 ? "site-nav__item--drop" : null)">
+        @if (Model.Men.Count > 0)
+        {
+            <button type="button"
+                    class="site-nav__trigger js-nav-drop-btn"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    aria-controls="navDropMen">
+                Мужское
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+            <div class="site-nav__dropdown js-nav-drop" id="navDropMen" role="menu">
+                <div class="site-wrap site-nav__dropdown-inner">
+                    <a role="menuitem"
+                       asp-area=""
+                       asp-page="/Catalog/Index"
+                       asp-route-gender="@((int)ProductGender.Men)">Все модели</a>
+                    @foreach (var c in Model.Men)
+                    {
+                        <a role="menuitem"
+                           asp-area=""
+                           asp-page="/Catalog/Index"
+                           asp-route-gender="@((int)ProductGender.Men)"
+                           asp-route-categoryId="@c.Id">@c.Name</a>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <a asp-area="" asp-page="/Catalog/Index" asp-route-gender="@((int)ProductGender.Men)">Мужское</a>
+        }
+    </li>
+</ul>

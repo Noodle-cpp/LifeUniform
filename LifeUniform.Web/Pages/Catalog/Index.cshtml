@@ -10,67 +10,110 @@
     var totalPages = Model.Vm.TotalPages;
     var heading = isWomen ? "Для женщин" : isMen ? "Для мужчин" : "Каталог";
     var parentLabel = isWomen ? "Женская одежда" : isMen ? "Мужская одежда" : "Все модели";
-    var allCta = isWomen ? "Все товары для женщин" : isMen ? "Все товары для мужчин" : "Все товары";
+    var selectedColorCount = Model.Colors.Count;
+    var selectedModelCount = Model.CategoryIds.Count;
+    var selectedFilterCount = selectedColorCount + selectedModelCount;
+    var hasColorFilter = selectedColorCount > 0;
+    var hasModelFilter = selectedModelCount > 0;
+    var filtersOpen = hasColorFilter || hasModelFilter;
 }
 
 <div class="site-wrap catalog-page">
-    <a class="btn btn-primary catalog-page__all d-md-none"
-       asp-page="/Catalog/Index"
-       asp-route-gender="@gender">@allCta</a>
-
-    <div class="catalog-page__head d-none d-md-flex">
+    <div class="catalog-page__head">
         <h1 class="catalog-page__title">@heading</h1>
     </div>
 
     <div class="catalog-layout">
-        <aside class="catalog-filters">
-            @if (Model.Vm.AvailableColors.Count > 0)
-            {
-                <div class="catalog-filters__block">
-                    <div class="catalog-filters__title">Цвет</div>
-                    <div class="color-dots color-dots--lg">
-                        @foreach (var c in Model.Vm.AvailableColors)
+        <aside class="catalog-filters @(filtersOpen ? "is-open" : null)" data-catalog-filters>
+            <button type="button"
+                    class="catalog-filters__toggle js-filters-toggle"
+                    aria-expanded="@(filtersOpen ? "true" : "false")"
+                    aria-controls="catalogFiltersPanel">
+                <i class="bi bi-sliders" aria-hidden="true"></i>
+                <span>Фильтры</span>
+                @if (selectedFilterCount > 0)
+                {
+                    <span class="catalog-filters__badge">@selectedFilterCount</span>
+                }
+                <i class="bi bi-chevron-down catalog-filters__toggle-chevron" aria-hidden="true"></i>
+            </button>
+
+            <div class="catalog-filters__panel" id="catalogFiltersPanel">
+                @if (Model.Vm.AvailableColors.Count > 0)
+                {
+                    <div class="catalog-filters__block @(hasColorFilter ? "is-open" : null)">
+                        <button type="button" class="catalog-filters__acc js-filter-acc" aria-expanded="@(hasColorFilter ? "true" : "false")">
+                            <span>Цвет@(hasColorFilter ? $" ({selectedColorCount})" : "")</span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div class="catalog-filters__body">
+                            <div class="color-dots color-dots--lg">
+                                @foreach (var c in Model.Vm.AvailableColors)
+                                {
+                                    var selected = Model.IsColorSelected(c.Name);
+                                    <a class="color-dot @(selected ? "is-selected" : null)"
+                                       style="background:@c.Hex"
+                                       title="@c.Name"
+                                       href="@Model.ToggleColorUrl(c.Name)"
+                                       aria-label="Цвет @c.Name"
+                                       aria-pressed="@(selected ? "true" : "false")"></a>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+
+                <div class="catalog-filters__block @(hasModelFilter || Model.Vm.AvailableColors.Count == 0 ? "is-open" : null)">
+                    <button type="button" class="catalog-filters__acc js-filter-acc" aria-expanded="@(hasModelFilter || Model.Vm.AvailableColors.Count == 0 ? "true" : "false")">
+                        <span>Модель@(hasModelFilter ? $" ({selectedModelCount})" : "")</span>
+                        <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                    </button>
+                    <div class="catalog-filters__body">
+                        <a class="catalog-check @(!hasModelFilter ? "is-on" : null)"
+                           href="@Model.ClearCategoriesUrl()">
+                            <span class="catalog-check__box"></span>
+                            @parentLabel
+                        </a>
+                        @if (Model.Vm.Categories.Count > 0)
                         {
-                            var selected = string.Equals(Model.Color, c.Name, StringComparison.OrdinalIgnoreCase);
-                            <a class="color-dot @(selected ? "is-selected" : null)"
-                               style="background:@c.Hex"
-                               title="@c.Name"
-                               asp-page="/Catalog/Index"
-                               asp-route-gender="@gender"
-                               asp-route-categoryId="@Model.CategoryId"
-                               asp-route-color="@(selected ? null : c.Name)"
-                               aria-label="Цвет @c.Name"></a>
+                            <div class="catalog-check__children">
+                                @if (gender is null)
+                                {
+                                    @foreach (var group in Model.CategoryGroups)
+                                    {
+                                        <div class="catalog-check__group">
+                                            <div class="catalog-check__group-title">@group.Title</div>
+                                            @foreach (var c in group.Items)
+                                            {
+                                                var on = Model.IsCategorySelected(c.Id);
+                                                <a class="catalog-check @(on ? "is-on" : null)"
+                                                   href="@Model.ToggleCategoryUrl(c.Id)"
+                                                   aria-pressed="@(on ? "true" : "false")"
+                                                   aria-label="@c.Name, @group.Title">
+                                                    <span class="catalog-check__box"></span>
+                                                    @c.Name
+                                                </a>
+                                            }
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    @foreach (var c in Model.Vm.Categories)
+                                    {
+                                        var on = Model.IsCategorySelected(c.Id);
+                                        <a class="catalog-check @(on ? "is-on" : null)"
+                                           href="@Model.ToggleCategoryUrl(c.Id)"
+                                           aria-pressed="@(on ? "true" : "false")">
+                                            <span class="catalog-check__box"></span>
+                                            @c.Name
+                                        </a>
+                                    }
+                                }
+                            </div>
                         }
                     </div>
                 </div>
-            }
-
-            <div class="catalog-filters__block">
-                <div class="catalog-filters__title">Модель</div>
-                <a class="catalog-check @(Model.CategoryId is null ? "is-on" : null)"
-                   asp-page="/Catalog/Index"
-                   asp-route-gender="@gender"
-                   asp-route-color="@Model.Color">
-                    <span class="catalog-check__box"></span>
-                    @parentLabel
-                </a>
-                @if (Model.Vm.Categories.Count > 0)
-                {
-                    <div class="catalog-check__children">
-                        @foreach (var c in Model.Vm.Categories)
-                        {
-                            var on = Model.CategoryId == c.Id;
-                            <a class="catalog-check @(on ? "is-on" : null)"
-                               asp-page="/Catalog/Index"
-                               asp-route-gender="@gender"
-                               asp-route-categoryId="@(on ? null : c.Id)"
-                               asp-route-color="@Model.Color">
-                                <span class="catalog-check__box"></span>
-                                @c.Name
-                            </a>
-                        }
-                    </div>
-                }
             </div>
         </aside>
 
@@ -85,11 +128,8 @@
             }
             else
             {
-                <div class="catalog-products__rail" data-rail>
-                    <button type="button" class="product-rail__nav product-rail__nav--prev d-md-none" aria-label="Назад">
-                        <i class="bi bi-chevron-left"></i>
-                    </button>
-                    <div class="catalog-products__track product-rail__track">
+                <div class="catalog-products__rail">
+                    <div class="catalog-products__track">
                         @foreach (var p in Model.Vm.Items)
                         {
                             <div class="catalog-products__item">
@@ -97,9 +137,6 @@
                             </div>
                         }
                     </div>
-                    <button type="button" class="product-rail__nav product-rail__nav--next d-md-none" aria-label="Вперёд">
-                        <i class="bi bi-chevron-right"></i>
-                    </button>
                 </div>
 
                 @if (totalPages > 1)
@@ -109,12 +146,7 @@
                             @for (var i = 1; i <= totalPages; i++)
                             {
                                 <li class="page-item @(i == page ? "active" : null)">
-                                    <a class="page-link"
-                                       asp-page="/Catalog/Index"
-                                       asp-route-gender="@gender"
-                                       asp-route-categoryId="@Model.CategoryId"
-                                       asp-route-color="@Model.Color"
-                                       asp-route-page="@i">@i</a>
+                                    <a class="page-link" href="@Model.PagerUrl(i)">@i</a>
                                 </li>
                             }
                         </ul>

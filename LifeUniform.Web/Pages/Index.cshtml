@@ -7,7 +7,8 @@
 
 <section class="hero-banner">
     <div class="hero-banner__stage">
-        <div class="media-frame media-frame--hero is-loading">
+        @* Desktop: one full-bleed image *@
+        <div class="hero-banner__shot hero-banner__shot--full media-frame media-frame--hero is-loading">
             <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
             <img src="~/images/hero-banner.png"
                  alt="Life Uniforms — медицинская одежда"
@@ -15,16 +16,52 @@
                  loading="eager"
                  asp-append-version="true" />
         </div>
-        <div class="hero-banner__overlay">
+
+        @* Mobile: left half on top (with text), right half below *@
+        <div class="hero-banner__split">
+            <div class="hero-banner__shot hero-banner__shot--left media-frame is-loading">
+                <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
+                <img src="~/images/hero-banner.png"
+                     alt="Life Uniforms — медицинская одежда"
+                     class="hero-banner__img js-lazy-img"
+                     loading="eager"
+                     asp-append-version="true" />
+                <div class="hero-banner__overlay hero-banner__overlay--mobile">
+                    <div class="site-wrap hero-banner__content">
+                        <p class="brand-eyebrow mb-2 js-reveal">Life Uniforms</p>
+                        <h1 class="hero-banner__title" aria-label="удобная медицинская одежда">
+                            <span class="js-typewriter" data-words="@heroWords"></span>
+                            <span class="hero-banner__title-static">медицинская одежда</span>
+                        </h1>
+                        <p class="hero-banner__lead js-reveal" data-reveal-delay="120">Стандарт качества современной медицинской формы</p>
+                        <div class="hero-banner__actions d-flex flex-wrap gap-2 mt-3 js-reveal" data-reveal-delay="240">
+                            <a class="btn btn-outline-primary btn-lg" asp-page="/Catalog/Index" asp-route-gender="1">Для женщин</a>
+                            <a class="btn btn-outline-primary btn-lg" asp-page="/Catalog/Index" asp-route-gender="2">Для мужчин</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-banner__shot hero-banner__shot--right media-frame is-loading">
+                <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
+                <img src="~/images/hero-banner.png"
+                     alt=""
+                     class="hero-banner__img js-lazy-img"
+                     loading="eager"
+                     asp-append-version="true" />
+            </div>
+        </div>
+
+        <div class="hero-banner__overlay hero-banner__overlay--desktop">
             <div class="site-wrap hero-banner__content">
                 <p class="brand-eyebrow mb-2 js-reveal">Life Uniforms</p>
                 <h1 class="hero-banner__title" aria-label="удобная медицинская одежда">
-                    <span class="js-typewriter" data-words="@heroWords"></span><span class="hero-banner__title-static"> медицинская одежда</span>
+                    <span class="js-typewriter" data-words="@heroWords"></span>
+                    <span class="hero-banner__title-static">медицинская одежда</span>
                 </h1>
                 <p class="hero-banner__lead js-reveal" data-reveal-delay="120">Стандарт качества современной медицинской формы</p>
                 <div class="hero-banner__actions d-flex flex-wrap gap-2 mt-3 js-reveal" data-reveal-delay="240">
-                    <a class="btn btn-outline-light btn-lg" asp-page="/Catalog/Index" asp-route-gender="1">Для женщин</a>
-                    <a class="btn btn-outline-light btn-lg" asp-page="/Catalog/Index" asp-route-gender="2">Для мужчин</a>
+                    <a class="btn btn-outline-primary btn-lg" asp-page="/Catalog/Index" asp-route-gender="1">Для женщин</a>
+                    <a class="btn btn-outline-primary btn-lg" asp-page="/Catalog/Index" asp-route-gender="2">Для мужчин</a>
                 </div>
             </div>
         </div>

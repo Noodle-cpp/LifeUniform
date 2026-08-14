@@ -62,16 +62,16 @@ public interface ICatalogRepository
 
     Task<(IReadOnlyList<Product> Items, int TotalCount)> GetProductsAsync(
         ProductGender? gender,
-        Guid? categoryId,
+        IReadOnlyList<Guid>? categoryIds,
         string? search,
-        string? color,
+        IReadOnlyList<string>? colors,
         int skip,
         int take,
         CancellationToken cancellationToken);
 
     Task<IReadOnlyList<ProductColorOption>> GetDistinctColorsAsync(
         ProductGender? gender,
-        Guid? categoryId,
+        IReadOnlyList<Guid>? categoryIds,
         CancellationToken cancellationToken);
 
     Task<IReadOnlyList<Product>> GetRelatedProductsAsync(

@@ -8,9 +8,9 @@ namespace LifeUniform.Application.Catalog.Queries;
 public class GetCatalogProductsQuery : IRequest<CatalogProductsPageDto>
 {
     public ProductGender? Gender { get; init; }
-    public Guid? CategoryId { get; init; }
+    public IReadOnlyList<Guid> CategoryIds { get; init; } = Array.Empty<Guid>();
     public string? Search { get; init; }
-    public string? Color { get; init; }
+    public IReadOnlyList<string> Colors { get; init; } = Array.Empty<string>();
     public int Page { get; init; } = 1;
     public int PageSize { get; init; } = 12;
     public string? UserId { get; init; }
@@ -25,9 +25,9 @@ public class CatalogProductsPageDto
     public int TotalCount { get; set; }
     public int TotalPages => PageSize <= 0 ? 0 : (int)Math.Ceiling(TotalCount / (double)PageSize);
     public ProductGender? Gender { get; set; }
-    public Guid? CategoryId { get; set; }
+    public IReadOnlyList<Guid> CategoryIds { get; set; } = Array.Empty<Guid>();
     public string? Search { get; set; }
-    public string? Color { get; set; }
+    public IReadOnlyList<string> Colors { get; set; } = Array.Empty<string>();
     public IReadOnlyList<ProductColorDto> AvailableColors { get; set; } = Array.Empty<ProductColorDto>();
 }
 
@@ -42,18 +42,26 @@ public class GetCatalogProductsHandler : IRequestHandler<GetCatalogProductsQuery
         var page = request.Page < 1 ? 1 : request.Page;
         var pageSize = request.PageSize is < 1 or > 48 ? 12 : request.PageSize;
         var skip = (page - 1) * pageSize;
+        var categoryIds = request.CategoryIds?.Where(id => id != Guid.Empty).Distinct().ToList()
+            ?? new List<Guid>();
+        var colors = request.Colors?
+            .Where(c => !string.IsNullOrWhiteSpace(c))
+            .Select(c => c.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList()
+            ?? new List<string>();
 
         var (items, total) = await _catalog.GetProductsAsync(
             request.Gender,
-            request.CategoryId,
+            categoryIds,
             request.Search,
-            request.Color,
+            colors,
             skip,
             pageSize,
             cancellationToken);
 
         var categories = await _catalog.GetCategoriesAsync(request.Gender, cancellationToken);
-        var colors = await _catalog.GetDistinctColorsAsync(request.Gender, request.CategoryId, cancellationToken);
+        var availableColors = await _catalog.GetDistinctColorsAsync(request.Gender, categoryIds, cancellationToken);
 
         IReadOnlyCollection<Guid> favoriteIds = Array.Empty<Guid>();
         if (!string.IsNullOrWhiteSpace(request.UserId))
@@ -75,10 +83,10 @@ public class GetCatalogProductsHandler : IRequestHandler<GetCatalogProductsQuery
             PageSize = pageSize,
             TotalCount = total,
             Gender = request.Gender,
-            CategoryId = request.CategoryId,
+            CategoryIds = categoryIds,
             Search = request.Search,
-            Color = request.Color,
-            AvailableColors = colors
+            Colors = colors,
+            AvailableColors = availableColors
                 .GroupBy(c => c.Hex + "|" + c.Name, StringComparer.OrdinalIgnoreCase)
                 .Select(g => CatalogMapper.ToProductColor(g.First()))
                 .ToList()

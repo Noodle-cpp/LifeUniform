@@ -198,6 +198,28 @@ public static class CatalogMapper
     public static IReadOnlyList<CategoryCardDto> ToCategoryCards(IEnumerable<Category> items) =>
         items.Select(ToCategoryCard).ToList();
 
+    public static IReadOnlyList<CategoryFilterGroupDto> GroupCategoriesByGender(
+        IEnumerable<CategoryCardDto> categories)
+    {
+        return categories
+            .GroupBy(c => c.Gender)
+            .OrderBy(g => g.Key)
+            .Select(g => new CategoryFilterGroupDto
+            {
+                Gender = g.Key,
+                Title = GenderFilterTitle(g.Key),
+                Items = g.ToList()
+            })
+            .ToList();
+    }
+
+    public static string GenderFilterTitle(int gender) => gender switch
+    {
+        (int)ProductGender.Women => "Женская одежда",
+        (int)ProductGender.Men => "Мужская одежда",
+        _ => "Другое"
+    };
+
     public static IReadOnlyList<ProductCardDto> ToProductCards(IEnumerable<Product> items) =>
         items.Select(ToProductCard).ToList();
 }

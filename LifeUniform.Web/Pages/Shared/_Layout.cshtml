@@ -23,20 +23,10 @@
             <div class="site-wrap site-nav__inner">
                 <a class="navbar-brand fw-bold" asp-area="" asp-page="/Index">Life Uniforms</a>
 
-                <ul class="site-nav__links">
-                    <li>
-                        <a asp-area="" asp-page="/Catalog/Index">Каталог</a>
-                    </li>
-                    <li>
-                        <a asp-area="" asp-page="/Catalog/Index" asp-route-gender="1">Женское</a>
-                    </li>
-                    <li>
-                        <a asp-area="" asp-page="/Catalog/Index" asp-route-gender="2">Мужское</a>
-                    </li>
-                </ul>
+                @await Component.InvokeAsync("HeaderNav")
 
                 <div class="site-nav__actions">
-                    <a class="nav-icon" asp-page="/Favorites/Index" title="Избранное" aria-label="Избранное">
+                    <a class="nav-icon js-fav-target" asp-page="/Favorites/Index" title="Избранное" aria-label="Избранное">
                         <i class="bi bi-heart" aria-hidden="true"></i>
                     </a>
                     <button type="button" class="nav-icon nav-icon--btn js-search-open" title="Поиск" aria-label="Поиск">
@@ -54,7 +44,7 @@
                             <i class="bi bi-person" aria-hidden="true"></i>
                         </a>
                     }
-                    <a class="nav-icon nav-cart"
+                    <a class="nav-icon nav-cart js-cart-target"
                        asp-page="/Cart/Index"
                        title="Корзина"
                        aria-label="@(cartQty > 0 ? $"Корзина, {cartQty}" : "Корзина")">
@@ -64,14 +54,18 @@
                             <span class="nav-cart__count">@(cartQty > 99 ? "99+" : cartQty.ToString())</span>
                         }
                     </a>
-                    <button class="nav-icon nav-icon--btn d-lg-none"
+                    <button class="nav-icon nav-icon--btn nav-icon--menu d-lg-none js-nav-toggle"
                             type="button"
                             data-bs-toggle="collapse"
                             data-bs-target="#mainNav"
                             aria-controls="mainNav"
                             aria-expanded="false"
                             aria-label="Меню">
-                        <i class="bi bi-list" aria-hidden="true"></i>
+                        <span class="nav-burger" aria-hidden="true">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </span>
                     </button>
                     @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
                     {
@@ -82,10 +76,8 @@
                 </div>
             </div>
             <div class="collapse site-nav__mobile" id="mainNav">
-                <div class="site-wrap py-2">
-                    <a class="site-nav__mobile-link" asp-area="" asp-page="/Catalog/Index">Каталог</a>
-                    <a class="site-nav__mobile-link" asp-area="" asp-page="/Catalog/Index" asp-route-gender="1">Женское</a>
-                    <a class="site-nav__mobile-link" asp-area="" asp-page="/Catalog/Index" asp-route-gender="2">Мужское</a>
+                <div class="site-wrap site-nav__mobile-inner">
+                    @await Component.InvokeAsync("HeaderNav", new { variant = "Mobile" })
                     <a class="site-nav__mobile-link" asp-area="" asp-page="/Delivery">Доставка</a>
                     @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
                     {

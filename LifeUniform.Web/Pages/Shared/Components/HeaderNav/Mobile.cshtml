@@ -1,0 +1,68 @@
+@model LifeUniform.Application.Catalog.Dto.NavMenuDto
+@using LifeUniform.Domain.Catalog
+
+<a class="site-nav__mobile-link" asp-area="" asp-page="/Catalog/Index">Каталог</a>
+
+<div class="site-nav__mobile-acc">
+    <div class="site-nav__mobile-acc-head">
+        <a class="site-nav__mobile-link site-nav__mobile-link--split"
+           asp-area=""
+           asp-page="/Catalog/Index"
+           asp-route-gender="@((int)ProductGender.Women)">Женское</a>
+        @if (Model.Women.Count > 0)
+        {
+            <button type="button"
+                    class="site-nav__mobile-acc-btn js-nav-acc"
+                    aria-expanded="false"
+                    aria-controls="navWomenCats"
+                    aria-label="Категории для женщин">
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+        }
+    </div>
+    @if (Model.Women.Count > 0)
+    {
+        <div class="site-nav__mobile-acc-panel" id="navWomenCats" hidden>
+            @foreach (var c in Model.Women)
+            {
+                <a class="site-nav__mobile-sub"
+                   asp-area=""
+                   asp-page="/Catalog/Index"
+                   asp-route-gender="@((int)ProductGender.Women)"
+                   asp-route-categoryId="@c.Id">@c.Name</a>
+            }
+        </div>
+    }
+</div>
+
+<div class="site-nav__mobile-acc">
+    <div class="site-nav__mobile-acc-head">
+        <a class="site-nav__mobile-link site-nav__mobile-link--split"
+           asp-area=""
+           asp-page="/Catalog/Index"
+           asp-route-gender="@((int)ProductGender.Men)">Мужское</a>
+        @if (Model.Men.Count > 0)
+        {
+            <button type="button"
+                    class="site-nav__mobile-acc-btn js-nav-acc"
+                    aria-expanded="false"
+                    aria-controls="navMenCats"
+                    aria-label="Категории для мужчин">
+                <i class="bi bi-chevron-down" aria-hidden="true"></i>
+            </button>
+        }
+    </div>
+    @if (Model.Men.Count > 0)
+    {
+        <div class="site-nav__mobile-acc-panel" id="navMenCats" hidden>
+            @foreach (var c in Model.Men)
+            {
+                <a class="site-nav__mobile-sub"
+                   asp-area=""
+                   asp-page="/Catalog/Index"
+                   asp-route-gender="@((int)ProductGender.Men)"
+                   asp-route-categoryId="@c.Id">@c.Name</a>
+            }
+        </div>
+    }
+</div>

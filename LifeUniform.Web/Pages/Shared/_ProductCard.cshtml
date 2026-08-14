@@ -8,7 +8,7 @@
 
 <div class="product-card h-100">
     <div class="product-card__media">
-        <a asp-page="/Catalog/Details" asp-route-slug="@Model.Slug" class="product-card__img-link media-frame is-loading">
+        <a asp-page="/Catalog/Details" asp-route-slug="@Model.Slug" class="product-card__img-link media-frame is-loading js-product-card-link">
             <span class="media-loader" aria-hidden="true"><i class="bi bi-arrow-repeat"></i></span>
             <img class="js-product-card-img js-lazy-img"
                  src="@Model.PreviewImageUrl"
@@ -61,6 +61,7 @@
                             style="background:@c.Hex"
                             title="@c.Name"
                             aria-label="Цвет @c.Name"
+                            data-color="@c.Name"
                             data-image="@(hasImage ? c.ImageUrl : null)"></button>
                 }
             </div>
@@ -72,11 +73,11 @@
                 <div class="size-pills__row">
                     @foreach (var s in Model.Sizes)
                     {
-                        <button type="button" class="size-pill js-size-pill">@s.Label</button>
+                        <button type="button" class="size-pill js-size-pill" data-size-id="@s.Id">@s.Label</button>
                     }
                 </div>
             </div>
         }
-        <a class="btn btn-primary product-card__more" asp-page="/Catalog/Details" asp-route-slug="@Model.Slug">Подробнее</a>
+        <a class="btn btn-primary product-card__more js-product-card-link" asp-page="/Catalog/Details" asp-route-slug="@Model.Slug">Подробнее</a>
     </div>
 </div>

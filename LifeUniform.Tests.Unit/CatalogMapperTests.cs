@@ -1,4 +1,5 @@
 using FluentAssertions;
+using LifeUniform.Application.Catalog.Dto;
 using LifeUniform.Application.Catalog.Mapping;
 using LifeUniform.Domain.Catalog;
 
@@ -56,5 +57,39 @@ public class CatalogMapperTests
         dto.Sizes.Should().ContainSingle(s => s.Label == "L");
         dto.Snippet.Should().Contain("Таблица размеров");
         dto.Colors.Should().ContainSingle(c => c.Name == "Серый");
+    }
+
+    [Fact]
+    public void GroupCategoriesByGender_SplitsDuplicateNames()
+    {
+        var womenSuits = new CategoryCardDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Костюмы",
+            Slug = "women-kostyumy",
+            Gender = (int)ProductGender.Women
+        };
+        var menSuits = new CategoryCardDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Костюмы",
+            Slug = "men-kostyumy",
+            Gender = (int)ProductGender.Men
+        };
+        var womenTops = new CategoryCardDto
+        {
+            Id = Guid.NewGuid(),
+            Name = "Топы",
+            Slug = "women-topy",
+            Gender = (int)ProductGender.Women
+        };
+
+        var groups = CatalogMapper.GroupCategoriesByGender([womenSuits, menSuits, womenTops]);
+
+        groups.Should().HaveCount(2);
+        groups[0].Title.Should().Be("Женская одежда");
+        groups[0].Items.Select(c => c.Name).Should().Equal("Костюмы", "Топы");
+        groups[1].Title.Should().Be("Мужская одежда");
+        groups[1].Items.Select(c => c.Name).Should().Equal("Костюмы");
     }
 }

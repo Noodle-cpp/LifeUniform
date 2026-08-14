@@ -8,3 +8,16 @@ public class CategoryCardDto
     public int Gender { get; set; }
 }
 
+public class CategoryFilterGroupDto
+{
+    public int Gender { get; init; }
+    public string Title { get; init; } = string.Empty;
+    public IReadOnlyList<CategoryCardDto> Items { get; init; } = Array.Empty<CategoryCardDto>();
+}
+
+public class NavMenuDto
+{
+    public IReadOnlyList<CategoryCardDto> Women { get; init; } = Array.Empty<CategoryCardDto>();
+    public IReadOnlyList<CategoryCardDto> Men { get; init; } = Array.Empty<CategoryCardDto>();
+}
+

@@ -429,9 +429,9 @@ public class CatalogRepository : ICatalogRepository
 
     public async Task<(IReadOnlyList<Product> Items, int TotalCount)> GetProductsAsync(
         ProductGender? gender,
-        Guid? categoryId,
+        IReadOnlyList<Guid>? categoryIds,
         string? search,
-        string? color,
+        IReadOnlyList<string>? colors,
         int skip,
         int take,
         CancellationToken cancellationToken)
@@ -443,8 +443,11 @@ public class CatalogRepository : ICatalogRepository
         if (gender is not null)
             query = query.Where(p => p.Gender == gender.Value);
 
-        if (categoryId is not null)
-            query = query.Where(p => p.CategoryId == categoryId.Value);
+        if (categoryIds is { Count: > 0 })
+        {
+            var ids = categoryIds.Distinct().ToList();
+            query = query.Where(p => ids.Contains(p.CategoryId));
+        }
 
         string? searchLower = null;
         if (!string.IsNullOrWhiteSpace(search))
@@ -478,10 +481,20 @@ public class CatalogRepository : ICatalogRepository
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(color))
+        if (colors is { Count: > 0 })
         {
-            var c = color.Trim();
-            query = query.Where(p => p.ColorOptions.Any(o => o.Name == c || o.Hex == c));
+            var colorSet = colors
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Select(c => c.Trim().ToLowerInvariant())
+                .Distinct()
+                .ToList();
+
+            if (colorSet.Count > 0)
+            {
+                query = query.Where(p => p.ColorOptions.Any(o =>
+                    colorSet.Contains(o.Name.ToLower())
+                    || colorSet.Contains(o.Hex.ToLower())));
+            }
         }
 
         var total = await query.CountAsync(cancellationToken);
@@ -515,7 +528,7 @@ public class CatalogRepository : ICatalogRepository
 
     public async Task<IReadOnlyList<ProductColorOption>> GetDistinctColorsAsync(
         ProductGender? gender,
-        Guid? categoryId,
+        IReadOnlyList<Guid>? categoryIds,
         CancellationToken cancellationToken)
     {
         var query = _db.Products
@@ -525,8 +538,11 @@ public class CatalogRepository : ICatalogRepository
         if (gender is not null)
             query = query.Where(p => p.Gender == gender.Value);
 
-        if (categoryId is not null)
-            query = query.Where(p => p.CategoryId == categoryId.Value);
+        if (categoryIds is { Count: > 0 })
+        {
+            var ids = categoryIds.Distinct().ToList();
+            query = query.Where(p => ids.Contains(p.CategoryId));
+        }
 
         return await query
             .SelectMany(p => p.ColorOptions)

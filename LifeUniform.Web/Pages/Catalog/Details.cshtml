@@ -130,17 +130,13 @@ else
                     }
                 </div>
 
-                @if (Model.CartAdded)
-                {
-                    <div class="alert alert-success py-2 mt-3 mb-0">
-                        Товар добавлен в корзину.
-                        <a asp-page="/Cart/Index" class="alert-link">Перейти в корзину</a>
-                    </div>
-                }
-                else if (!string.IsNullOrEmpty(Model.CartMessage) && !Model.SizeMissing)
-                {
-                    <div class="alert alert-warning py-2 mt-3 mb-0">@Model.CartMessage</div>
-                }
+                <div class="alert alert-success py-2 mt-3 mb-0 js-cart-added" @(Model.CartAdded ? null : "hidden")>
+                    Товар добавлен в корзину.
+                    <a asp-page="/Cart/Index" class="alert-link">Перейти в корзину</a>
+                </div>
+                <div class="alert alert-warning py-2 mt-3 mb-0 js-cart-error" @(!string.IsNullOrEmpty(Model.CartMessage) && !Model.SizeMissing ? null : "hidden")>
+                    @Model.CartMessage
+                </div>
 
                 @if (Model.Vm.Colors.Count > 0)
                 {
@@ -156,6 +152,7 @@ else
                                    asp-page="/Catalog/Details"
                                    asp-route-slug="@Model.Vm.Slug"
                                    asp-route-color="@c.Name"
+                                   asp-route-size="@Model.SelectedSizeId"
                                    title="@c.Name"
                                    data-image="@(c.ImageUrl ?? Model.Vm.PreviewImageUrl)">
                                     <span class="visually-hidden">@c.Name</span>
@@ -165,7 +162,7 @@ else
                     </div>
                 }
 
-                <form method="post" asp-page-handler="AddToCart" class="mt-4" id="addToCartForm" novalidate>
+                <form method="post" asp-page-handler="AddToCart" class="mt-4 js-add-to-cart-form" id="addToCartForm" novalidate>
                     <input type="hidden" name="slug" value="@Model.Vm.Slug" />
                     <input type="hidden" name="color" value="@(activeColor?.Name ?? selectedColor)" />
                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -183,7 +180,7 @@ else
                             @foreach (var s in Model.Vm.Sizes)
                             {
                                 <label class="pdp-size" data-size-id="@s.Id">
-                                    <input type="radio" name="sizeId" value="@s.Id" />
+                                    <input type="radio" name="sizeId" value="@s.Id" @(Model.SelectedSizeId == s.Id ? "checked" : null) />
                                     <span>@s.Label</span>
                                 </label>
                             }
@@ -374,7 +371,19 @@ else
     }
   };
 
+  const syncColorLinks = () => {
+    const size = form?.querySelector('input[name="sizeId"]:checked:not(:disabled)')?.value;
+    document.querySelectorAll('.color-swatch').forEach((a) => {
+      if (!(a instanceof HTMLAnchorElement)) return;
+      const url = new URL(a.href, window.location.origin);
+      if (size) url.searchParams.set('size', size);
+      else url.searchParams.delete('size');
+      a.setAttribute('href', `${url.pathname}${url.search}${url.hash}`);
+    });
+  };
+
   filterSizesForColor();
+  syncColorLinks();
 
   form?.addEventListener('submit', (e) => {
     const selected = form.querySelector('input[name="sizeId"]:checked:not(:disabled)');
@@ -390,6 +399,7 @@ else
     input.addEventListener('change', () => {
       sizes?.classList.remove('is-invalid');
       sizeError?.classList.add('d-none');
+      syncColorLinks();
     });
   });
 })();
