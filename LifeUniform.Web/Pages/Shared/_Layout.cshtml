@@ -34,9 +34,7 @@
                     </button>
                     @if (User?.Identity?.IsAuthenticated == true)
                     {
-                        <a class="nav-icon" asp-page="/Account/Index" title="Кабинет" aria-label="Кабинет">
-                            <i class="bi bi-person" aria-hidden="true"></i>
-                        </a>
+                        @await Component.InvokeAsync("AccountMenu")
                     }
                     else
                     {
@@ -82,8 +80,13 @@
                     @if (User?.Identity?.IsAuthenticated == true)
                     {
                         <a class="site-nav__mobile-link" asp-page="/Account/Index">Кабинет</a>
+                        <a class="site-nav__mobile-link" asp-page="/Account/Profile">Профиль</a>
+                        <a class="site-nav__mobile-link" asp-page="/Account/Orders">Мои заказы</a>
                         <form method="post" asp-page="/Account/Logout" asp-route-returnUrl="/">
-                            <button type="submit" class="site-nav__mobile-link">Выйти</button>
+                            <button type="submit" class="site-nav__mobile-link site-nav__mobile-link--logout">
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                Выйти
+                            </button>
                         </form>
                     }
                     @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))

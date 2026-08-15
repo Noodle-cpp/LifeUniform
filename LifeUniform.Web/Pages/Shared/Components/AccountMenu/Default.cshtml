@@ -1,0 +1,36 @@
+@model LifeUniform.Web.ViewComponents.AccountMenuVm
+
+<div class="account-menu js-account-menu">
+    <button type="button"
+            class="nav-icon nav-icon--btn js-account-menu-btn"
+            aria-expanded="false"
+            aria-haspopup="true"
+            aria-controls="accountMenuPanel"
+            title="Кабинет"
+            aria-label="Кабинет">
+        <i class="bi bi-person" aria-hidden="true"></i>
+    </button>
+    <div class="account-menu__panel js-account-menu-panel" id="accountMenuPanel" role="menu">
+        <div class="account-menu__head">
+            <div class="account-menu__who">
+                <div class="account-menu__name">@Model.DisplayName</div>
+                @if (!string.IsNullOrWhiteSpace(Model.Email) &&
+                     !string.Equals(Model.Email, Model.DisplayName, StringComparison.OrdinalIgnoreCase))
+                {
+                    <div class="account-menu__email">@Model.Email</div>
+                }
+                <a class="account-menu__edit" asp-page="/Account/Profile" role="menuitem">Редактировать профиль</a>
+            </div>
+            <form method="post" asp-page="/Account/Logout" asp-route-returnUrl="/">
+                <button type="submit" class="account-menu__logout" title="Выйти" aria-label="Выйти">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                </button>
+            </form>
+        </div>
+        <div class="account-menu__links">
+            <a asp-page="/Account/Index" role="menuitem">Личный кабинет</a>
+            <a asp-page="/Account/Orders" role="menuitem">Мои заказы</a>
+            <a asp-page="/Favorites/Index" role="menuitem">Избранное</a>
+        </div>
+    </div>
+</div>

@@ -898,3 +898,72 @@
     img.addEventListener('error', () => done(img), { once: true });
   });
 })();
+
+// Account menu in header
+(() => {
+  const root = document.querySelector('.js-account-menu');
+  if (!root) return;
+  const btn = root.querySelector('.js-account-menu-btn');
+
+  const setOpen = (on) => {
+    root.classList.toggle('is-open', on);
+    btn?.setAttribute('aria-expanded', on ? 'true' : 'false');
+  };
+
+  btn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpen(!root.classList.contains('is-open'));
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!root.contains(e.target)) setOpen(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+})();
+
+// RU phone mask for profile / checkout
+(() => {
+  const formatRuPhone = (raw) => {
+    let digits = String(raw || '').replace(/\D/g, '');
+    if (digits.startsWith('8')) digits = '7' + digits.slice(1);
+    if (!digits.startsWith('7')) digits = '7' + digits;
+    digits = digits.slice(0, 11);
+    const rest = digits.slice(1);
+    let out = '+7';
+    if (rest.length === 0) return out + ' ';
+    out += ' (' + rest.slice(0, Math.min(3, rest.length));
+    if (rest.length < 3) return out;
+    out += ')';
+    if (rest.length === 3) return out + ' ';
+    out += ' ' + rest.slice(3, Math.min(6, rest.length));
+    if (rest.length <= 6) return out;
+    out += '-' + rest.slice(6, Math.min(8, rest.length));
+    if (rest.length <= 8) return out;
+    out += '-' + rest.slice(8, 10);
+    return out;
+  };
+
+  document.querySelectorAll('.js-phone-ru').forEach((input) => {
+    if (!input.value || !input.value.trim()) input.value = '+7 ';
+    else input.value = formatRuPhone(input.value);
+    input.addEventListener('focus', () => {
+      if (!input.value.trim()) input.value = '+7 ';
+    });
+    input.addEventListener('input', () => {
+      const pos = input.selectionStart;
+      const before = input.value;
+      input.value = formatRuPhone(input.value);
+      const delta = input.value.length - before.length;
+      const next = Math.max(4, (pos ?? input.value.length) + delta);
+      input.setSelectionRange(next, next);
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && (input.selectionStart ?? 0) <= 3 && (input.selectionEnd ?? 0) <= 3) {
+        e.preventDefault();
+      }
+    });
+  });
+})();

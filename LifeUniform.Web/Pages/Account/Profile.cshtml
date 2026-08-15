@@ -1,0 +1,109 @@
+@page
+@model LifeUniform.Web.Pages.Account.ProfileModel
+@{
+    ViewData["Title"] = "Редактирование профиля";
+}
+
+<div class="container py-4 py-lg-5">
+    <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
+        <div>
+            <p class="account-hero__eyebrow mb-2">Кабинет</p>
+            <h1 class="account-hero__title">Профиль</h1>
+        </div>
+        <a class="section-link" asp-page="/Account/Index">В кабинет</a>
+    </div>
+
+    <div class="account-forms">
+        <section class="account-form">
+            <h2 class="account-form__title">Личные данные</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.SavedMessage))
+            {
+                <div class="account-form__ok">@Model.SavedMessage</div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.ProfileError))
+            {
+                <div class="account-form__error">@Model.ProfileError</div>
+            }
+            <form method="post" asp-page-handler="Save">
+                <div class="mb-3">
+                    <label class="auth-modal__label" asp-for="Profile.Name">Имя</label>
+                    <input class="form-control auth-modal__input" asp-for="Profile.Name" autocomplete="name" required />
+                </div>
+                <div class="mb-3">
+                    <label class="auth-modal__label" for="profileEmail">Эл. почта</label>
+                    <input class="form-control auth-modal__input" id="profileEmail" value="@Model.Email" type="email" readonly tabindex="-1" />
+                </div>
+                <div class="mb-4">
+                    <label class="auth-modal__label" asp-for="Profile.Phone">Телефон</label>
+                    <input class="form-control auth-modal__input js-phone-ru"
+                           asp-for="Profile.Phone"
+                           type="tel"
+                           inputmode="tel"
+                           autocomplete="tel"
+                           placeholder="+7 (900) 000-00-00" />
+                    <div class="form-text">Нужен для связи по заказам. Можно оставить пустым.</div>
+                </div>
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </form>
+        </section>
+
+        <section class="account-form">
+            <h2 class="account-form__title">Пароль</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.PasswordSaved))
+            {
+                <div class="account-form__ok">@Model.PasswordSaved</div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.PasswordError))
+            {
+                <div class="account-form__error">@Model.PasswordError</div>
+            }
+            <form method="post" asp-page-handler="Password" autocomplete="off">
+                <div class="mb-3">
+                    <label class="auth-modal__label" for="profileCurrentPassword">Текущий пароль</label>
+                    <div class="auth-modal__password">
+                        <input class="form-control auth-modal__input"
+                               id="profileCurrentPassword"
+                               name="Password.Current"
+                               type="password"
+                               autocomplete="current-password"
+                               required />
+                        <button type="button" class="auth-modal__eye" data-toggle-password="profileCurrentPassword" aria-label="Показать пароль">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="auth-modal__label" for="profileNewPassword">Новый пароль</label>
+                    <div class="auth-modal__password">
+                        <input class="form-control auth-modal__input"
+                               id="profileNewPassword"
+                               name="Password.New"
+                               type="password"
+                               autocomplete="new-password"
+                               required
+                               minlength="6" />
+                        <button type="button" class="auth-modal__eye" data-toggle-password="profileNewPassword" aria-label="Показать пароль">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="auth-modal__label" for="profileConfirmPassword">Повторите пароль</label>
+                    <div class="auth-modal__password">
+                        <input class="form-control auth-modal__input"
+                               id="profileConfirmPassword"
+                               name="Password.Confirm"
+                               type="password"
+                               autocomplete="new-password"
+                               required
+                               minlength="6" />
+                        <button type="button" class="auth-modal__eye" data-toggle-password="profileConfirmPassword" aria-label="Показать пароль">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Сменить пароль</button>
+            </form>
+        </section>
+    </div>
+</div>

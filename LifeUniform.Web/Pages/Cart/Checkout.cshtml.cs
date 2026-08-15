@@ -4,7 +4,9 @@ using LifeUniform.Application.Orders.Commands;
 using LifeUniform.Application.Orders.Dto;
 using LifeUniform.Application.Orders.Queries;
 using LifeUniform.Domain.Orders;
+using LifeUniform.Web.Services;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -13,8 +15,13 @@ namespace LifeUniform.Web.Pages.Cart;
 public class CheckoutModel : PageModel
 {
     private readonly IMediator _mediator;
+    private readonly UserManager<IdentityUser> _users;
 
-    public CheckoutModel(IMediator mediator) => _mediator = mediator;
+    public CheckoutModel(IMediator mediator, UserManager<IdentityUser> users)
+    {
+        _mediator = mediator;
+        _users = users;
+    }
 
     public CartDto Cart { get; private set; } = new();
 
@@ -60,8 +67,20 @@ public class CheckoutModel : PageModel
         if (Cart.Items.Count == 0)
             return RedirectToPage("/Cart/Index");
 
-        if (User.Identity?.IsAuthenticated == true && string.IsNullOrWhiteSpace(Input.CustomerEmail))
-            Input.CustomerEmail = User.Identity.Name ?? string.Empty;
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            var user = await _users.GetUserAsync(User);
+            if (string.IsNullOrWhiteSpace(Input.CustomerEmail))
+                Input.CustomerEmail = user?.Email ?? User.Identity.Name ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(Input.CustomerName))
+            {
+                var given = User.FindFirstValue(ClaimTypes.GivenName);
+                Input.CustomerName = string.IsNullOrWhiteSpace(given) ? string.Empty : given.Trim();
+            }
+            if ((string.IsNullOrWhiteSpace(Input.CustomerPhone) || AccountIdentityHelper.IsBlankPhone(Input.CustomerPhone))
+                && !string.IsNullOrWhiteSpace(user?.PhoneNumber))
+                Input.CustomerPhone = user.PhoneNumber;
+        }
 
         if (string.IsNullOrWhiteSpace(Input.CustomerPhone) || Input.CustomerPhone.Trim() == "+7")
             Input.CustomerPhone = "+7 ";

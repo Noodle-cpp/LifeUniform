@@ -280,6 +280,20 @@ button.section-link.account-logout:hover {
   font-size: 0.95rem;
 }
 
+.account-hero__edit {
+  display: inline-block;
+  margin-top: 0.7rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  color: var(--lu-muted);
+}
+
+.account-hero__edit:hover {
+  color: var(--lu-ink);
+}
+
 .account-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -420,6 +434,157 @@ button.section-link.account-logout:hover {
     text-align: left;
     width: 100%;
   }
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-menu__panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.55rem);
+  right: 0;
+  z-index: 1060;
+  width: min(18.5rem, calc(100vw - 1.5rem));
+  padding: 1.05rem 1.1rem 0.7rem;
+  background: #fff;
+  border: 1px solid var(--lu-border);
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(17, 17, 17, 0.12);
+}
+
+.account-menu.is-open .account-menu__panel {
+  display: block;
+}
+
+.account-menu.is-open > .nav-icon {
+  opacity: 1;
+}
+
+.account-menu__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.85rem;
+}
+
+.account-menu__name {
+  font-weight: 800;
+  font-size: 1.05rem;
+  line-height: 1.2;
+  color: var(--lu-ink);
+}
+
+.account-menu__email {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  color: var(--lu-muted);
+  word-break: break-all;
+}
+
+.account-menu__edit {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--lu-muted);
+  text-decoration: none;
+}
+
+.account-menu__edit:hover {
+  color: var(--lu-ink);
+}
+
+.account-menu__logout {
+  flex-shrink: 0;
+  width: 2.15rem;
+  height: 2.15rem;
+  margin: -0.2rem -0.2rem 0 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--lu-danger);
+  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.account-menu__logout:hover {
+  background: rgba(225, 29, 46, 0.08);
+  color: #b31220;
+}
+
+.account-menu__links {
+  border-top: 1px solid var(--lu-border);
+  padding: 0.35rem 0 0.15rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.account-menu__links a {
+  padding: 0.55rem 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--lu-ink);
+  text-decoration: none;
+}
+
+.account-menu__links a:hover {
+  opacity: 0.55;
+  color: var(--lu-ink);
+}
+
+.account-forms {
+  display: grid;
+  gap: 1rem;
+  max-width: 36rem;
+}
+
+.account-form {
+  background: var(--lu-surface);
+  border: 1px solid var(--lu-border);
+  border-radius: 24px;
+  padding: 1.45rem 1.35rem 1.5rem;
+}
+
+.account-form__title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 0 0 1.1rem;
+}
+
+.account-form__ok,
+.account-form__error {
+  border-radius: 12px;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.account-form__ok {
+  background: var(--lu-accent-soft);
+  color: var(--lu-ink);
+}
+
+.account-form__error {
+  background: rgba(225, 29, 46, 0.08);
+  color: var(--lu-danger);
+}
+
+.site-nav__mobile-link--logout {
+  color: var(--lu-danger);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.site-nav__mobile-link--logout:hover {
+  color: #b31220;
 }
 
 .brand-eyebrow {
