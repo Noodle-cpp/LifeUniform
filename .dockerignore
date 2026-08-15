@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.git/
+**/.vs/
+**/.cursor/
+**/.idea/
+**/LifeUniform.Tests.*/
+**/*.user
+**/*.suo
+**/appsettings.Development.json
+**/docker-compose*.yml
+README.md
+docs/
