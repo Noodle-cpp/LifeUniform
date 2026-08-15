@@ -223,6 +223,205 @@ a:hover { color: var(--lu-accent); }
 
 .section-link:hover { color: var(--lu-ink); }
 
+button.section-link.account-logout {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0.35rem 0;
+  cursor: pointer;
+  font: inherit;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--lu-danger);
+}
+
+button.section-link.account-logout:hover {
+  color: #b31220;
+}
+
+.account-hero {
+  background: var(--lu-surface);
+  border: 1px solid var(--lu-border);
+  border-radius: 24px;
+  padding: 1.5rem 1.4rem 1.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.account-hero__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.account-hero__eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--lu-muted);
+}
+
+.account-hero__title {
+  font-size: clamp(1.55rem, 3vw, 2.1rem);
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.account-hero__email {
+  margin: 0.4rem 0 0;
+  color: var(--lu-muted);
+  font-size: 0.95rem;
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .account-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+}
+
+.account-card,
+.account-last {
+  display: flex;
+  text-decoration: none;
+  color: inherit;
+  background: var(--lu-surface);
+  border: 1px solid var(--lu-border);
+  border-radius: 24px;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+}
+
+.account-card {
+  flex-direction: column;
+  min-height: 11.5rem;
+  padding: 1.25rem 1.2rem 1.15rem;
+}
+
+.account-card:hover,
+.account-last:hover {
+  transform: translateY(-2px);
+  background: var(--lu-accent-soft);
+  border-color: transparent;
+  color: inherit;
+}
+
+.account-card__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+  background: var(--lu-bg-soft);
+  color: var(--lu-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  margin-bottom: 1rem;
+}
+
+.account-card:hover .account-card__icon {
+  background: #fff;
+}
+
+.account-card__title {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.account-card__stat {
+  margin-top: 0.3rem;
+  color: var(--lu-muted);
+  font-size: 0.92rem;
+}
+
+.account-card__go {
+  margin-top: auto;
+  padding-top: 1.1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--lu-muted);
+}
+
+.account-card:hover .account-card__go,
+.account-last:hover .account-card__go {
+  color: var(--lu-ink);
+}
+
+.account-last {
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  padding: 1.35rem 1.4rem;
+}
+
+.account-last__eyebrow {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lu-muted);
+  margin-bottom: 0.35rem;
+}
+
+.account-last__title {
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.account-last__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  margin-top: 0.3rem;
+  color: var(--lu-muted);
+  font-size: 0.9rem;
+}
+
+.account-last__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.account-last__side strong {
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.account-last__side .account-card__go {
+  padding-top: 0.35rem;
+}
+
+@media (max-width: 575.98px) {
+  .account-last {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .account-last__side {
+    align-items: flex-start;
+    text-align: left;
+    width: 100%;
+  }
+}
+
 .brand-eyebrow {
   letter-spacing: 0.14em;
   text-transform: uppercase;

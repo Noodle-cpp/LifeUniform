@@ -6,9 +6,9 @@
 }
 
 <div class="container py-4">
-<div class="d-flex align-items-center justify-content-between mb-4">
+<div class="d-flex align-items-center justify-content-between gap-3 mb-4">
     <h1 class="h3 fw-bold mb-0">Мои заказы</h1>
-    <a class="btn btn-sm btn-outline-secondary" asp-page="/Account/Index">Кабинет</a>
+    <a class="section-link" asp-page="/Account/Index">Кабинет</a>
 </div>
 
 @if (Model.Vm.Count == 0)
