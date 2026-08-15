@@ -1923,8 +1923,20 @@ body {
 }
 
 .site-nav__mobile-inner > a.site-nav__mobile-link,
+.site-nav__mobile-inner > form > .site-nav__mobile-link,
 .site-nav__mobile-acc {
   border-top: 1px solid var(--lu-border);
+}
+
+button.site-nav__mobile-link {
+  width: 100%;
+  background: transparent;
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
 }
 
 .site-nav__mobile-inner > a.site-nav__mobile-link:first-child {

@@ -79,6 +79,13 @@
                 <div class="site-wrap site-nav__mobile-inner">
                     @await Component.InvokeAsync("HeaderNav", new { variant = "Mobile" })
                     <a class="site-nav__mobile-link" asp-area="" asp-page="/Delivery">Доставка</a>
+                    @if (User?.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="site-nav__mobile-link" asp-page="/Account/Index">Кабинет</a>
+                        <form method="post" asp-page="/Account/Logout" asp-route-returnUrl="/">
+                            <button type="submit" class="site-nav__mobile-link">Выйти</button>
+                        </form>
+                    }
                     @if (User?.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
                     {
                         <a class="site-nav__mobile-link" asp-area="Admin" asp-page="/Index">Админ</a>
